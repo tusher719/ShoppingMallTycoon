@@ -56,12 +56,24 @@ overrideCtrl["Walk"] = customWalkClip;
 animator.runtimeAnimatorController = overrideCtrl;
 ```
 
-### 5. CameraManager — event-driven switch
+### 5. CameraManager — event-driven switch (Cinemachine 3.x)
 
 ```csharp
-public void SwitchToGameplay() { ... }
-public void PlayCinematic(CinematicType type, Vector3 focusPoint, Action onComplete) { ... }
+// Priority-based switching via Output Channel
+// VC_Gameplay: Output Channel = Default
+// Cinematic VCs: Output Channel = Channel02 (inactive until triggered)
+// CinemachineBrain: Channel Mask = Default only
+
+public void PlayShopUnlock(float duration = 3f, Action onComplete = null) { ... }
+public void PlayLevelComplete(float duration = 5f, Action onComplete = null) { ... }
 ```
+
+**Cinemachine 3.x Notes:**
+
+- `using Unity.Cinemachine;` (namespace changed from Cinemachine 2.x)
+- Priority checkbox কাজ করে না — Output Channel দিয়ে isolate করো
+- CinemachineBrain Channel Mask = Default (cinematic VCs আলাদা channel-এ)
+- Input System: `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হবে
 
 ### 6. Income Formula
 
@@ -155,20 +167,95 @@ SceneManager.LoadScene("Onboarding");
 
 ---
 
-## 🎥 Camera Architecture
+## 🎥 Camera Architecture (Cinemachine 3.x)
 
 ```
 Main Camera
-└── Cinemachine Brain
-    ├── VC_Gameplay      (priority 10, default, always active)
-    ├── VC_ShopUnlock    (priority 20, triggered on shop build)
-    ├── VC_NewFloor      (priority 20, triggered on floor unlock)
-    ├── VC_MallOverview  (priority 20, triggered on overview)
-    ├── VC_Achievement   (priority 20, triggered on achievement)
-    └── VC_LevelComplete (priority 20, triggered on level end)
+└── CinemachineBrain (Channel Mask: Default only)
+    ├── VC_Gameplay      (Output: Default, always live)
+    ├── VC_ShopUnlock    (Output: Channel02, triggered via CameraManager)
+    ├── VC_NewFloor      (Output: Channel02, triggered via CameraManager)
+    ├── VC_MallOverview  (Output: Channel02, triggered via CameraManager)
+    └── VC_LevelComplete (Output: Channel02, triggered via CameraManager)
 ```
 
-Cinematic VC bumped to priority 20 on trigger → plays → returns to 0. Gameplay always at 10.
+- Cinematic VCs Channel02-এ থাকে, CameraManager script দিয়ে trigger হয়
+- VC_Gameplay সবসময় Default channel-এ live
+
+### Camera Controls
+
+- Input System: New Input System Package (Unity.InputSystem)
+- PC: Mouse drag pan + scroll wheel zoom
+- Android: Single finger drag pan + pinch zoom
+- `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হবে
+- Pan bounds: X(-15 to 15), Z(-15 to 15)
+- Zoom bounds: OrthographicSize(5 to 20)
+
+---
+
+## 🎨 Material & Lighting Setup (URP)
+
+### Lighting Rules
+
+- **Render Pipeline:** URP (Universal Render Pipeline)
+- সব Material অবশ্যই **URP/Lit** বা **URP/Simple Lit** shader ব্যবহার করবে
+- Standard shader ব্যবহার করবে না — URP-তে pink হয়ে যাবে
+
+### Scene Lighting
+
+```
+Directional Light:
+- Rotation: (50, -30, 0)   ← isometric-friendly angle
+- Intensity: 1.0
+- Color: Warm white (#FFF5E0)
+- Shadow Type: Soft Shadows
+- Shadow Strength: 0.5
+
+Environment:
+- Skybox: URP default অথবা solid color (mobile performance)
+- Ambient Mode: Flat
+- Ambient Color: soft blue-grey (#8AA0B0)
+- Fog: disabled (mobile performance)
+```
+
+### URP Asset Settings (mobile-optimized)
+
+```
+Rendering:
+- Depth Texture: off
+- Opaque Texture: off
+
+Quality:
+- Anti Aliasing: 2x (বা off for low-end)
+- Render Scale: 1.0
+
+Lighting:
+- Main Light: Per Pixel
+- Additional Lights: Disabled (mobile performance)
+- Cast Shadows: on (main light only)
+
+Post Processing: off (Phase 1 MVP)
+```
+
+### Material Conventions
+
+| Object Type  | Shader              | Notes                   |
+| ------------ | ------------------- | ----------------------- |
+| Mall floor   | URP/Lit             | Albedo only, smooth=0   |
+| Walls        | URP/Lit             | Albedo only             |
+| Shop prefabs | URP/Lit             | Low-poly, bright colors |
+| Characters   | URP/Simple Lit      | Mobile-friendly         |
+| FX particles | URP/Particles/Unlit | Additive blend          |
+
+### Low-Poly Color Palette
+
+```
+Floor:    #E8DCC8  (warm beige)
+Walls:    #F5F0E8  (off-white)
+Accent:   #4A90D9  (blue — shop highlights)
+Income:   #F5A623  (gold — coin/money UI)
+Success:  #7ED321  (green — objectives)
+```
 
 ---
 

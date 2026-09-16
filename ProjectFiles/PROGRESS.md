@@ -9,11 +9,11 @@
 - **Unity:** 6000.0.47f1 (URP)
 - **Platform:** Android (primary), PC (secondary)
 - **Repo:** https://github.com/tusher719/ShoppingMallTycoon
-- **Current Phase:** Phase 1 — Scene Setup & Camera
+- **Current Phase:** Phase 2 — Character & Animation System
 
 ---
 
-## 📦 Phase 1 — Project Setup & Scene
+## 📦 Phase 1 — Project Setup & Scene ✅ COMPLETE
 
 | #   | Task                                    | Status  | Git Commit Message                      |
 | --- | --------------------------------------- | ------- | --------------------------------------- |
@@ -22,11 +22,31 @@
 | 03  | Level_01 scene create + Hierarchy setup | ✅ Done | `init: add Level_01 scene`              |
 | 04  | Mall floor blockout (Plane, 40×40)      | ✅ Done | `level01: add mall floor blockout`      |
 | 05  | Walls + entrance gap blockout           | ✅ Done | `level01: add walls and entrance gap`   |
-| 06  | Cinemachine package install             | ⬜      | `camera: install Cinemachine package`   |
-| 07  | Gameplay camera (isometric) setup       | ⬜      | `camera: add isometric gameplay camera` |
-| 08  | Cinematic virtual cameras setup         | ⬜      | `camera: add cinematic virtual cameras` |
-| 09  | CameraManager.cs                        | ⬜      | `camera: add CameraManager script`      |
-| 10  | Mobile camera controls (drag/pinch)     | ⬜      | `camera: add mobile touch controls`     |
+| 06  | Cinemachine 3.1.7 install               | ✅ Done | `camera: install Cinemachine package`   |
+| 07  | Gameplay camera (isometric) setup       | ✅ Done | `camera: add isometric gameplay camera` |
+| 08  | Cinematic virtual cameras setup         | ✅ Done | `camera: add cinematic virtual cameras` |
+| 09  | CameraManager.cs                        | ✅ Done | `camera: add CameraManager script`      |
+| 10  | Mobile camera controls (drag/pinch)     | ✅ Done | `camera: add mobile touch controls`     |
+
+**Phase 1 Notes:**
+
+- Cinemachine 3.x namespace: `Unity.Cinemachine` (2.x থেকে আলাদা)
+- Cinematic VCs Output Channel = Channel02, Brain Channel Mask = Default only
+- Camera controls: New Input System + EnhancedTouchSupport — PC ও Android দুটোতেই tested ✅
+
+---
+
+## 🎨 Material & Lighting — TODO (Phase 1 শেষে করতে হবে)
+
+| #   | Task                                           | Status | Notes                                      |
+| --- | ---------------------------------------------- | ------ | ------------------------------------------ |
+| L1  | URP Asset mobile settings configure            | ⬜     | Additional Lights off, Post Processing off |
+| L2  | Directional Light setup (50,-30,0), warm white | ⬜     | Soft shadow, strength 0.5                  |
+| L3  | Mall floor material (URP/Lit, #E8DCC8)         | ⬜     | Default grey plane replace করো             |
+| L4  | Wall materials (URP/Lit, #F5F0E8)              | ⬜     | সব wall-এ apply                            |
+| L5  | Ambient light setup (Flat, #8AA0B0)            | ⬜     | Window → Rendering → Lighting              |
+
+> ⚠️ সব নতুন Material অবশ্যই URP/Lit বা URP/Simple Lit shader ব্যবহার করবে। Standard shader = pink।
 
 ---
 
@@ -133,35 +153,25 @@
 
 ## 📱 Phase 9 — Build & Test
 
-| #   | Task                                  | Status | Git Commit Message                      |
-| --- | ------------------------------------- | ------ | --------------------------------------- |
-| 56  | Android build settings configure      | ⬜     | `build: configure Android settings`     |
-| 57  | **Install on phone — test Phase 1–8** | ⬜     | `build: MVP Phase 1 Android test build` |
-| 58  | Performance check + fix               | ⬜     | `build: mobile performance pass`        |
-| 59  | PC standalone build test              | ⬜     | `build: PC standalone test build`       |
-
----
-
-## 🔮 Phase 10 — Level 2 & 3 (after MVP test ✅)
-
-> Phase 9 test pass হলে শুরু করবো
-
-- Level 2: Second shop unlock + cinematic
-- Level 3: Customer types intro
-- Level 4: Staff system
-- Level 5: Mall expansion / new tile
+| #   | Task                                | Status  | Git Commit Message                      |
+| --- | ----------------------------------- | ------- | --------------------------------------- |
+| 56  | Android build settings configure    | ✅ Done | `build: configure Android settings`     |
+| 57  | **Install on phone — test Phase 1** | ✅ Done | `build: MVP Phase 1 Android test build` |
+| 58  | Performance check + fix             | ⬜      | `build: mobile performance pass`        |
+| 59  | PC standalone build test            | ⬜      | `build: PC standalone test build`       |
 
 ---
 
 ## 📌 Current Step
 
-**→ Step 06: Cinemachine package install**
+**→ Material & Lighting setup (L1–L5) → তারপর Step 11: CharacterBase.cs**
 
 ---
 
 ## 🐛 Known Issues / Blockers
 
-- (none yet)
+- Cinemachine 3.x Priority checkbox কাজ করে না → Output Channel দিয়ে solve করা হয়েছে
+- New Input System-এ `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হয়
 
 ---
 
@@ -169,7 +179,9 @@
 
 - Grid tile size: 5×5 units
 - Mall Level 1: 40×40 units floor, entrance gap 8 units (South wall, X -4 to +4)
-- Camera: Isometric gameplay + Cinemachine cinematics
+- Camera: Isometric Orthographic + Cinemachine 3.x cinematics
+- Cinemachine 3.x: `Unity.Cinemachine` namespace, Channel-based isolation
+- Input: New Input System Package (Active Input Handling)
 - No player character control — management only
 - MVP: Level 1–3, single shop, no staff
 - Character system: CharacterBase + AnimatorOverrideController (modular)
@@ -180,4 +192,6 @@
 - UI: Canvas Scaler 1080×1920, match 0.5, SafeAreaHandler for notch
 - Save Phase 1: PlayerPrefs | Phase 2: JSON | Future: Remote DB
 - Reset: clears all data, restarts from onboarding
-- Phase 9 = install on phone to test before continuing
+- Materials: URP/Lit বা URP/Simple Lit — Standard shader ব্যবহার নয়
+- Lighting: Directional (50,-30,0), warm white, soft shadow 0.5
+- Android build: Package name `com.tusher.shoppingmalltycoon`, IL2CPP, ARM64

@@ -2,7 +2,7 @@
 
 ---
 
-## [0.1.0] — Phase 1 Scene Setup _(in progress)_
+## [0.1.0] — Phase 1 Scene Setup ✅ COMPLETE
 
 ### Done
 
@@ -12,14 +12,37 @@
 - Mall floor blockout (Plane, 40×40 units)
 - Walls blockout (North, West, East, South_Left, South_Right)
 - Entrance gap: 8 units at South wall (X -4 to +4)
+- Cinemachine 3.1.7 installed (`Unity.Cinemachine` namespace)
+- Isometric gameplay camera (VC_Gameplay, Orthographic size 10, pos 0,20,-15, rot 45,0,0)
+- Cinematic virtual cameras (VC_ShopUnlock, VC_NewFloor, VC_MallOverview, VC_LevelComplete)
+  - Output Channel = Channel02 (Default unchecked)
+  - CinemachineBrain Channel Mask = Default only
+- CameraManager.cs (Priority-based cinematic switching)
+- CameraInputHandler.cs — New Input System + EnhancedTouchSupport
+  - PC: mouse drag pan + scroll wheel zoom
+  - Android: single finger drag pan + pinch zoom
+  - Tested on both PC ✅ and Android ✅
 
-### Remaining
+### Lessons Learned
 
-- Cinemachine package install
-- Isometric gameplay camera
-- Cinematic virtual cameras (VC_Gameplay, VC_ShopUnlock, etc.)
-- CameraManager.cs
-- Mobile touch controls (drag pan, pinch zoom)
+- Cinemachine 3.x: `Unity.Cinemachine` namespace (2.x থেকে আলাদা)
+- Priority checkbox কাজ করে না → Output Channel দিয়ে VC isolate করতে হয়
+- New Input System-এ `Input.GetTouch` কাজ করে না → `EnhancedTouchSupport` ব্যবহার করতে হয়
+- Android build: Active Input Handling = Input System Package (New)
+
+---
+
+## [0.1.1] — Material & Lighting _(next up)_
+
+### Planned
+
+- URP Asset mobile settings (Additional Lights off, Post Processing off)
+- Directional Light: rotation (50,-30,0), warm white (#FFF5E0), soft shadow 0.5
+- Mall floor material (URP/Lit, #E8DCC8)
+- Wall materials (URP/Lit, #F5F0E8)
+- Ambient light setup (Flat, #8AA0B0)
+
+> ⚠️ সব Material অবশ্যই URP/Lit বা URP/Simple Lit — Standard shader = pink
 
 ---
 
@@ -117,14 +140,19 @@
 
 ---
 
-## [0.9.0] — Phase 9 Build & Test _(not started)_
+## [0.9.0] — Phase 9 Build & Test _(in progress)_
 
-### Planned
+### Done
 
-- Android build configure
-- Install on phone — full playtest
-- Performance pass
-- PC standalone build
+- Android build settings configured
+  - Package: `com.tusher.shoppingmalltycoon`
+  - IL2CPP, ARM64
+- Phase 1 installed and tested on Android ✅
+
+### Remaining
+
+- Performance check + fix
+- PC standalone build test
 
 ---
 
