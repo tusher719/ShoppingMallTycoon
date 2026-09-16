@@ -564,6 +564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 783520313}
+  - component: {fileID: 783520314}
   m_Layer: 0
   m_Name: CameraManager
   m_TagString: Untagged
@@ -586,6 +587,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1328679794}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &783520314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783520312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 546d24615f19e0c4b9577990bc71a339, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vc_Gameplay: {fileID: 1732409824}
+  vc_ShopUnlock: {fileID: 1307646651}
+  vc_NewFloor: {fileID: 2014724930}
+  vc_MallOverview: {fileID: 2072401875}
+  vc_LevelComplete: {fileID: 260355004}
 --- !u!1 &984738927
 GameObject:
   m_ObjectHideFlags: 0
