@@ -9,7 +9,7 @@
 - **Unity:** 6000.0.47f1 (URP)
 - **Platform:** Android (primary), PC (secondary)
 - **Repo:** https://github.com/tusher719/ShoppingMallTycoon
-- **Current Phase:** Phase 2 — Character & Animation System
+- **Current Phase:** Phase 3 — Onboarding
 
 ---
 
@@ -36,7 +36,7 @@
 
 ---
 
-## 🎨 Material & Lighting — TODO (Phase 1 শেষে করতে হবে)
+## 🎨 Material & Lighting — TODO (চলতে চলতে করতে হবে)
 
 | #   | Task                                           | Status | Notes                                      |
 | --- | ---------------------------------------------- | ------ | ------------------------------------------ |
@@ -50,15 +50,24 @@
 
 ---
 
-## 🎭 Phase 2 — Character & Animation System
+## 🎭 Phase 2 — Character & Animation System ✅ COMPLETE
 
-| #   | Task                                   | Status | Git Commit Message                      |
-| --- | -------------------------------------- | ------ | --------------------------------------- |
-| 11  | CharacterBase.cs (shared logic)        | ⬜     | `character: add CharacterBase script`   |
-| 12  | BaseAnimator controller (shared)       | ⬜     | `anim: add BaseAnimator controller`     |
-| 13  | Customer_Normal prefab + animator      | ⬜     | `character: add Customer_Normal prefab` |
-| 14  | Animation override controller setup    | ⬜     | `anim: add animation override system`   |
-| 15  | Walk / Idle / Browse / Pay clips wired | ⬜     | `anim: wire customer animation clips`   |
+| #   | Task                                   | Status  | Git Commit Message                      |
+| --- | -------------------------------------- | ------- | --------------------------------------- |
+| 11  | CharacterBase.cs (shared logic)        | ✅ Done | `character: add CharacterBase script`   |
+| 12  | BaseAnimator controller (shared)       | ✅ Done | `anim: add BaseAnimator controller`     |
+| 13  | Customer_Normal prefab + animator      | ✅ Done | `character: add Customer_Normal prefab` |
+| 14  | Animation override controller setup    | ✅ Done | `anim: add animation override system`   |
+| 15  | Walk / Idle / Browse / Pay clips wired | ⏭ Skip | Real model আসলে করবো                    |
+
+**Phase 2 Notes:**
+
+- Placeholder: Capsule mesh, URP/Simple Lit, #4A90D9
+- BaseAnimator: 4 states (Idle, Walk, Browse, Pay), Any State transitions, Trigger parameters
+- AnimatorOverrideController: `Customer_Normal_Override` → BaseAnimator override
+- Step 15 skip — real 3D model আসলে animation clips wire করবো
+- NavMeshAgent: Speed 3.5, Stopping Distance 1.5, Radius 0.3, Base Offset 0
+- Prefab position Y:1 (Capsule height = 2, pivot center)
 
 ---
 
@@ -164,7 +173,7 @@
 
 ## 📌 Current Step
 
-**→ Material & Lighting setup (L1–L5) → তারপর Step 11: CharacterBase.cs**
+**→ Step 16: Onboarding scene create**
 
 ---
 
@@ -172,6 +181,7 @@
 
 - Cinemachine 3.x Priority checkbox কাজ করে না → Output Channel দিয়ে solve করা হয়েছে
 - New Input System-এ `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হয়
+- Drag drop করলে prefab Y:0 হয়ে যায় → CustomerSpawner দিয়ে code থেকে spawn করবো
 
 ---
 
@@ -185,6 +195,8 @@
 - No player character control — management only
 - MVP: Level 1–3, single shop, no staff
 - Character system: CharacterBase + AnimatorOverrideController (modular)
+- Customer placeholder: Capsule, URP/Simple Lit #4A90D9, Y:1
+- Animation clips: real model আসলে wire করবো (Step 15 skip)
 - First launch: gender + age onboarding
 - Income: 1.2x multiplier per level `Mathf.Pow(1.2f, levelIndex)`
 - Audio: AudioManager singleton, BGM loop + SFX PlayOneShot

@@ -17,7 +17,7 @@
 - Cinematic virtual cameras (VC_ShopUnlock, VC_NewFloor, VC_MallOverview, VC_LevelComplete)
   - Output Channel = Channel02 (Default unchecked)
   - CinemachineBrain Channel Mask = Default only
-- CameraManager.cs (Priority-based cinematic switching)
+- CameraManager.cs (cinematic switching via Priority)
 - CameraInputHandler.cs — New Input System + EnhancedTouchSupport
   - PC: mouse drag pan + scroll wheel zoom
   - Android: single finger drag pan + pinch zoom
@@ -32,7 +32,7 @@
 
 ---
 
-## [0.1.1] — Material & Lighting _(next up)_
+## [0.1.1] — Material & Lighting _(ongoing — চলতে চলতে করতে হবে)_
 
 ### Planned
 
@@ -46,19 +46,29 @@
 
 ---
 
-## [0.2.0] — Phase 2 Characters _(not started)_
+## [0.2.0] — Phase 2 Characters ✅ COMPLETE
 
-### Planned
+### Done
 
-- CharacterBase.cs
-- BaseAnimator controller
-- Customer_Normal prefab
-- AnimatorOverrideController system
-- Animation clips wired
+- `CharacterBase.cs` — abstract base class (MoveTo, PlayAnim, StopMoving, HasReachedDestination)
+- `BaseAnimator.controller` — 4 states: Idle, Walk, Browse, Pay
+  - Any State → সব state (Trigger conditions, Has Exit Time: off)
+- `Customer_Normal` prefab (placeholder Capsule)
+  - Mesh: Capsule | Material: URP/Simple Lit, #4A90D9
+  - Animator: Customer_Normal_Override controller
+  - NavMeshAgent: Speed 3.5, Stopping Distance 1.5, Radius 0.3, Base Offset 0
+  - Position Y: 1 (ground level)
+- `Customer_Normal_Override.overrideController` → BaseAnimator override
+
+### Lessons Learned
+
+- AnimatorOverrideController slots তখনই দেখায় যখন BaseAnimator states-এ Motion (clip) assign থাকে
+- Step 15 (animation clips) skip — real 3D model আসলে করবো
+- Drag drop করলে prefab Y:0 হয়ে যায় → code থেকে spawn করবো (CustomerSpawner)
 
 ---
 
-## [0.3.0] — Phase 3 Onboarding _(not started)_
+## [0.3.0] — Phase 3 Onboarding _(next up)_
 
 ### Planned
 
@@ -151,6 +161,7 @@
 
 ### Remaining
 
+- Full MVP test (Phase 1–8 complete হলে)
 - Performance check + fix
 - PC standalone build test
 
