@@ -27,7 +27,7 @@ public class BuildUI : MonoBehaviour
     void Start()
     {
         btnBuild.onClick.AddListener(OnBuildClicked);
-        UpdateCoinsUI(500f); // starting coins
+        UpdateCoinsUI(500f);
     }
 
     void OnBuildClicked()
@@ -51,8 +51,6 @@ public class BuildUI : MonoBehaviour
     void UpdateCoinsUI(float amount)
     {
         txtCoins.text = $"Coins: {amount:F0}";
-
-        // Button disable if not enough coins
         bool canAfford = amount >= shopData.baseCost;
         btnBuild.interactable = canAfford;
         btnBuild.image.color = canAfford ? new Color(0.29f, 0.565f, 0.851f) : new Color(0.4f, 0.4f, 0.4f);
