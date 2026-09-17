@@ -9,7 +9,7 @@
 - **Unity:** 6000.0.47f1 (URP)
 - **Platform:** Android (primary), PC (secondary)
 - **Repo:** https://github.com/tusher719/ShoppingMallTycoon
-- **Current Phase:** Phase 4 — Economy & Shop (Step 22 next)
+- **Current Phase:** Phase 5 — Customer System (Step 27 next)
 
 ---
 
@@ -65,31 +65,28 @@
 | 20  | OnboardingManager.cs + skip logic              | ✅ Done | `onboard: add OnboardingManager`                |
 | 21  | TutorialManager.cs (arrow + message, Level_01) | ✅ Done | `tutorial: add in-game tutorial system`         |
 
-**Notes:**
+---
 
-- LoadingManager routes based on `save_onboarded` PlayerPrefs key
-- Buttons wired via `AddListener` — not Inspector OnClick
-- Selected button color: #4A90D9 | Default: #444466
-- START GAME disabled until both gender and age are selected
-- Tutorial: tap anywhere to advance, 0.5s input block between steps
-- `save_tutorial_done` key prevents tutorial replay
-- Tested Windows ✅ Android ✅
+## 💰 Phase 4 — Economy & Shop ✅ COMPLETE
+
+| #   | Task                                       | Status  | Git Commit Message                            |
+| --- | ------------------------------------------ | ------- | --------------------------------------------- |
+| 22  | EconomyManager.cs (with income multiplier) | ✅ Done | `economy: add EconomyManager with multiplier` |
+| 23  | ShopData ScriptableObject                  | ✅ Done | `shop: add ShopData ScriptableObject`         |
+| 24  | GroceryShop prefab (blockout)              | ✅ Done | `shop: add GroceryShop prefab`                |
+| 25  | ShopController.cs                          | ✅ Done | `shop: add ShopController`                    |
+| 26  | Build Shop UI + deduct money               | ✅ Done | `shop: add build UI and deduct cost`          |
+
+**Phase 4 Notes:**
+
+- Shop spawns at fixed position (0,0,5) — grid placement → Phase 7
+- Button grey+disabled when coins insufficient ✅
+- Per-min income display → Phase 7 HUD
+- Shop count display → Phase 7 HUD
 
 ---
 
-## 💰 Phase 4 — Economy & Shop _(next)_
-
-| #   | Task                                       | Status | Git Commit Message                            |
-| --- | ------------------------------------------ | ------ | --------------------------------------------- |
-| 22  | EconomyManager.cs (with income multiplier) | ⬜     | `economy: add EconomyManager with multiplier` |
-| 23  | ShopData ScriptableObject                  | ⬜     | `shop: add ShopData ScriptableObject`         |
-| 24  | GroceryShop prefab (blockout)              | ⬜     | `shop: add GroceryShop prefab`                |
-| 25  | ShopController.cs                          | ⬜     | `shop: add ShopController`                    |
-| 26  | Build Shop UI + deduct money               | ⬜     | `shop: add build UI and deduct cost`          |
-
----
-
-## 👤 Phase 5 — Customer System _(not started)_
+## 👤 Phase 5 — Customer System _(next)_
 
 | #   | Task                                                          | Status | Git Commit Message                         |
 | --- | ------------------------------------------------------------- | ------ | ------------------------------------------ |
@@ -115,13 +112,24 @@
 
 ## ⬆️ Phase 7 — Upgrade & UI _(not started)_
 
-| #   | Task                                    | Status | Git Commit Message                         |
-| --- | --------------------------------------- | ------ | ------------------------------------------ |
-| 37  | Shop upgrade logic (3 tiers)            | ⬜     | `shop: add 3-tier upgrade logic`           |
-| 38  | Shop upgrade UI panel                   | ⬜     | `ui: add shop upgrade panel`               |
-| 39  | HUD — money, stars, level, satisfaction | ⬜     | `ui: add HUD elements`                     |
-| 40  | Level complete panel (stars + reward)   | ⬜     | `ui: add level complete panel`             |
-| 41  | Cinematic trigger on shop unlock        | ⬜     | `camera: trigger cinematic on shop unlock` |
+| #   | Task                                              | Status | Git Commit Message                         |
+| --- | ------------------------------------------------- | ------ | ------------------------------------------ |
+| 37  | Grid-based shop placement                         | ⬜     | `shop: add grid placement system`          |
+| 38  | Shop upgrade logic (3 tiers)                      | ⬜     | `shop: add 3-tier upgrade logic`           |
+| 38B | Shop upgrade UI panel                             | ⬜     | `ui: add shop upgrade panel`               |
+| 39  | Full HUD                                          | ⬜     | `ui: add full HUD`                         |
+|     | — 💰 Coins + per-min income rate (`+$48/min`)     |        |                                            |
+|     | — 📊 Level progress bar + % + goal number         |        |                                            |
+|     | — 💎 Gems display                                 |        |                                            |
+|     | — 🏪 Shop count (`Shops: 3`)                      |        |                                            |
+|     | — 👥 Active customer count (`Customers: 7`)       |        |                                            |
+| 40  | Gem system                                        | ⬜     | `economy: add gem system`                  |
+|     | — Earn: mission complete / level complete / daily |        |                                            |
+|     | — Spend: instant upgrade / speed boost            |        |                                            |
+|     | — Collect: tap floating FX_GemCollect prefab      |        |                                            |
+| 41  | Mission panel (task + reward + progress bar)      | ⬜     | `ui: add mission panel`                    |
+| 42  | Level complete panel (⭐⭐⭐ + coins + next)      | ⬜     | `ui: add level complete panel`             |
+| 43  | Cinematic trigger on shop unlock                  | ⬜     | `camera: trigger cinematic on shop unlock` |
 
 ---
 
@@ -129,13 +137,14 @@
 
 | #   | Task                                           | Status | Git Commit Message                       |
 | --- | ---------------------------------------------- | ------ | ---------------------------------------- |
-| 42  | AudioManager.cs (BGM + SFX, singleton)         | ⬜     | `audio: add AudioManager`                |
-| 43  | BGM clips add + level theme play               | ⬜     | `audio: add BGM clips and level theme`   |
-| 44  | SFX clips wire (click, coin, unlock, complete) | ⬜     | `audio: wire SFX clips`                  |
-| 45  | FXManager.cs (object pool)                     | ⬜     | `fx: add FXManager with object pool`     |
-| 46  | FX_CoinEarn prefab + trigger                   | ⬜     | `fx: add coin earn particle effect`      |
-| 47  | FX_ShopUnlock prefab + trigger                 | ⬜     | `fx: add shop unlock particle effect`    |
-| 48  | FX_LevelComplete prefab + trigger              | ⬜     | `fx: add level complete particle effect` |
+| 44  | AudioManager.cs (BGM + SFX, singleton)         | ⬜     | `audio: add AudioManager`                |
+| 45  | BGM clips add + level theme play               | ⬜     | `audio: add BGM clips and level theme`   |
+| 46  | SFX clips wire (click, coin, unlock, complete) | ⬜     | `audio: wire SFX clips`                  |
+| 47  | FXManager.cs (object pool)                     | ⬜     | `fx: add FXManager with object pool`     |
+| 48  | FX_CoinEarn prefab + trigger                   | ⬜     | `fx: add coin earn particle effect`      |
+| 49  | FX_ShopUnlock prefab + trigger                 | ⬜     | `fx: add shop unlock particle effect`    |
+| 50  | FX_LevelComplete prefab + trigger              | ⬜     | `fx: add level complete particle effect` |
+| 51  | FX_GemCollect prefab + trigger                 | ⬜     | `fx: add gem collect particle effect`    |
 
 ---
 
@@ -143,14 +152,14 @@
 
 | #   | Task                                       | Status | Git Commit Message                         |
 | --- | ------------------------------------------ | ------ | ------------------------------------------ |
-| 49  | SafeAreaHandler.cs (notch fix)             | ⬜     | `ui: add safe area handler`                |
-| 50  | Canvas Scaler setup (1080×1920, match 0.5) | ⬜     | `ui: configure canvas scaler for mobile`   |
-| 51  | SaveManager.cs (PlayerPrefs)               | ⬜     | `save: add PlayerPrefs SaveManager`        |
-| 52  | Save character selection + BGM/SFX volume  | ⬜     | `save: save onboarding and audio settings` |
-| 53  | Save: coins, level, shop state, stars      | ⬜     | `save: save game state`                    |
-| 54  | Load on game start                         | ⬜     | `save: load state on start`                |
-| 55  | ResetManager.cs (PC + Android)             | ⬜     | `reset: add game reset system`             |
-| 56  | Reset confirmation UI                      | ⬜     | `ui: add reset confirmation dialog`        |
+| 52  | SafeAreaHandler.cs (notch fix)             | ⬜     | `ui: add safe area handler`                |
+| 53  | Canvas Scaler setup (1080×1920, match 0.5) | ⬜     | `ui: configure canvas scaler for mobile`   |
+| 54  | SaveManager.cs (PlayerPrefs)               | ⬜     | `save: add PlayerPrefs SaveManager`        |
+| 55  | Save character selection + BGM/SFX volume  | ⬜     | `save: save onboarding and audio settings` |
+| 56  | Save: coins, level, shop state, stars      | ⬜     | `save: save game state`                    |
+| 57  | Load on game start                         | ⬜     | `save: load state on start`                |
+| 58  | ResetManager.cs (PC + Android)             | ⬜     | `reset: add game reset system`             |
+| 59  | Reset confirmation UI                      | ⬜     | `ui: add reset confirmation dialog`        |
 
 ---
 
@@ -158,16 +167,16 @@
 
 | #   | Task                             | Status  | Git Commit Message                      |
 | --- | -------------------------------- | ------- | --------------------------------------- |
-| 57  | Android build settings configure | ✅ Done | `build: configure Android settings`     |
-| 58  | Install on phone — test Phase 1  | ✅ Done | `build: MVP Phase 1 Android test build` |
-| 59  | Performance check + fix          | ⬜      | `build: mobile performance pass`        |
-| 60  | PC standalone build test         | ⬜      | `build: PC standalone test build`       |
+| 60  | Android build settings configure | ✅ Done | `build: configure Android settings`     |
+| 61  | Install on phone — test Phase 1  | ✅ Done | `build: MVP Phase 1 Android test build` |
+| 62  | Performance check + fix          | ⬜      | `build: mobile performance pass`        |
+| 63  | PC standalone build test         | ⬜      | `build: PC standalone test build`       |
 
 ---
 
 ## 📌 Current Step
 
-**→ Step 22: EconomyManager.cs — AddMoney, SpendMoney, income multiplier**
+**→ Step 27: NavMesh bake on Level_01**
 
 ---
 
@@ -180,31 +189,27 @@
 - Canvas Match must be 0.5 for correct scaling on both portrait and landscape
 - Wire buttons via `AddListener` in script, not via Inspector OnClick events
 - TMP import dialog appears first time — click Import TMP Essentials
+- `save_tutorial_done` must be reset separately — `DeleteAll()` also clears `save_onboarded`
+- NavMeshAgent on Customer_Normal must be disabled until NavMesh is baked (Step 27)
+- Material slot in Mesh Renderer — expand ▶ Materials to see Element 0 for drag-drop
 
 ---
 
 ## 💡 Decisions Made
 
-- Grid tile size: 5×5 units
+- Grid tile size: 5×5 units (grid placement → Phase 7)
+- Shop spawn: fixed at (0,0,5) until Phase 7 grid system
 - Mall Level 1: 40×40 units floor, 8-unit entrance gap (South wall, X -4 to +4)
 - Camera: Isometric Orthographic + Cinemachine 3.x cinematics
-- Cinemachine 3.x: `Unity.Cinemachine` namespace, Channel-based VC isolation
-- Input: New Input System Package (Active Input Handling)
+- Input: New Input System Package
 - No player character control — management game only
 - MVP scope: Level 1–3, single shop type, no staff
-- Character system: CharacterBase + AnimatorOverrideController (modular, extensible)
-- Customer placeholder: Capsule, URP/Simple Lit #4A90D9, Y:1
-- Animation clips: wire when real 3D model arrives (Step 15 skipped)
-- First launch: gender + age onboarding before Level_01
-- Tutorial: auto-start, tap anywhere to advance, 0.5s input block, save_tutorial_done key
-- Income multiplier: `Mathf.Pow(1.2f, levelIndex)` per level
+- Income multiplier: `Mathf.Pow(1.2f, levelIndex)` — wired in Phase 6
+- Income interval: 5 seconds per shop
+- Button disabled: grey (#666) + white text (Disabled Color #FFFFFF in Button component)
+- HUD: number-driven, always visible, fun — per-min income, progress %, gem count, shop + customer count
+- Gem system: earn via milestones/missions, spend for instant upgrade/speed boost, collect by tapping FX prefab
 - Audio: AudioManager singleton, BGM loop + SFX PlayOneShot
-- FX: FXManager object pool, 3 effect types (CoinEarn, ShopUnlock, LevelComplete)
-- UI: Canvas Scaler 1080×1920, Match 0.5, SafeAreaHandler for notch support
+- FX: FXManager object pool — CoinEarn, ShopUnlock, LevelComplete, GemCollect
 - Save Phase 1: PlayerPrefs | Phase 2: JSON | Future: Remote DB
-- Reset: clears all PlayerPrefs data, reloads from Onboarding
-- Materials: URP/Lit or URP/Simple Lit only — Standard shader not allowed
-- Lighting: Directional (50,-30,0), warm white #FFF5E0, soft shadow strength 0.5
 - Android build: package `com.tusher.shoppingmalltycoon`, IL2CPP, ARM64
-- Buttons wired via AddListener in script — not Inspector OnClick
-- LoadingScreen ProgressBar Pos Y: -400, LoadingText Pos Y: -480 (works on both Windows and Android)

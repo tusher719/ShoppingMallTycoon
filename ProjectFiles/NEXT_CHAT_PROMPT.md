@@ -1,60 +1,51 @@
-I'm building Shopping Mall Tycoon — a Unity 6 (6000.0.47f1) URP Android mobile tycoon game.
+# 🏬 Shopping Mall Tycoon — Next Chat Prompt
+
+> এই পুরো block টা নতুন chat এ paste করো।
+
+---
+
+আমি Shopping Mall Tycoon বানাচ্ছি — Unity 6 (6000.0.47f1) URP Android mobile tycoon game।
 Repo: https://github.com/tusher719/ShoppingMallTycoon
 Speak to me in Bangla, write all code and docs in English.
 
-## Stack
+[PROJECT_CONTEXT.md এর সম্পূর্ণ content paste করো]
 
-- Unity 6 URP, Android (primary) + PC (secondary)
-- Cinemachine 3.1.7 (Unity.Cinemachine namespace)
-- NavMesh (customer AI)
-- New Input System + EnhancedTouchSupport
-- CharacterBase + AnimatorOverrideController (modular character system)
+## ✅ Completed Phases
 
-## Core Loop
+### Phase 1 — Scene Setup ✅
+Camera, walls, floor, Cinemachine 3.x, drag/pinch controls
 
-Build Shop → Customers Arrive → Shop → Checkout → Earn → Upgrade → Level Complete
+### Phase 2 — Character System ✅
+CharacterBase.cs, Customer_Normal prefab, AnimatorOverrideController
+Step 15 skipped — wire when real 3D model arrives
+NavMeshAgent disabled until Step 27
 
-## Already Done ✅
+### Phase 3 — Onboarding ✅
+LoadingScreen → Onboarding → Level_01 routing
+Gender + Age selection, TutorialManager (4-step arrow overlay)
 
-- Step 01–10: Scene setup, mall floor/walls, Cinemachine cameras, CameraManager, touch controls (PC & Android tested)
-- Step 11–14: CharacterBase.cs, BaseAnimator, Customer_Normal prefab, AnimatorOverrideController (Step 15 skipped — wire when real model arrives)
-- Step 16: LoadingScreen scene + LoadingManager.cs (progress bar, routes to Onboarding or Level_01 based on save_onboarded)
-- Step 17–20: Onboarding scene — Gender (Male/Female) + Age (Young/Adult/Senior) select, OnboardingManager.cs (AddListener pattern, color feedback, START GAME disabled until both selected, saves to PlayerPrefs, skip logic for returning players)
+### Phase 4 — Economy & Shop ✅
+- EconomyManager.cs — AddMoney, SpendMoney, OnMoneyChanged event, starting coins 500
+- ShopData ScriptableObject — GroceryShop_Data (Cost:100, Income:20, MaxCustomers:2)
+- GroceryShop prefab — ShopBody (#4A90D9) + ShopSign (#F5A623) + ShopTrigger
+- ShopController.cs — Build(), GenerateIncome() every 5s
+- BuildUI.cs — BuildPanel (bottom), TxtCoins (top), button grey+disabled when coins low
+- Shop spawns at fixed (0,0,5) — grid placement → Phase 7
+- LevelManager multiplier placeholder — wires in Phase 6
 
-## Build Settings
+## 📌 Current Step
 
-0 - \_Game/Scenes/LoadingScreen
-1 - \_Game/Scenes/Onboarding
-2 - \_Game/Scenes/Level_01
+**→ Step 27: NavMesh bake on Level_01**
 
-## Key Conventions
+Phase 5 শুরু হবে। Customer system:
+- Step 27: NavMesh bake
+- Step 28: CustomerController.cs (state machine)
+- Step 29: CustomerSpawner.cs
+- Step 30: Full shopping flow (Spawn→Walk→Shop→Queue→Pay→Exit)
+- Step 31: Payment wired to EconomyManager
 
-- All materials: URP/Lit or URP/Simple Lit (Standard shader = pink in URP)
-- Singletons: GameManager, EconomyManager, CameraManager, AudioManager, FXManager, SaveManager, UIManager
-- Events: C# static events, no direct references
-- Buttons: wired via AddListener in script, not Inspector OnClick
-- Income multiplier: Mathf.Pow(1.2f, levelIndex)
-- PlayerPrefs keys: save_coins, save_level, save_stars_X, save_shop_X_level, save_char_gender, save_char_age, save_onboarded, vol_bgm, vol_sfx
-- Canvas Scaler: 1080×1920, Match 0.5
-- Cinemachine: Priority checkbox broken → use Output Channel isolation
-- EnhancedTouchSupport.Enable() must be called in OnEnable
-
-## Lessons Learned
-
-- Image Type: Filled requires UISprite assigned to Source Image first
-- Drag-dropping prefab resets Y to 0 → spawn via code
-- Canvas Match must be 0.5 for correct scaling on Android and Windows
-
-## Current Step
-
-Step 21: TutorialManager.cs — 4-step arrow + message overlay in Level_01
-
-Tutorial steps:
-| Step | Target | Message |
-|------|--------------------|-----------------------------------------|
-| 1 | Build button | "Tap here to build your first shop!" |
-| 2 | South wall entrance| "Customers will enter through here" |
-| 3 | Mall floor center | "Place your shop anywhere on the floor" |
-| 4 | HUD top area | "Earn money and upgrade your shops!" |
-
-Start from Step 21. Ask questions first if anything is unclear.
+## 🗒️ Pending Decisions (Phase 7)
+- Grid-based shop placement (tile 5×5)
+- HUD: per-min income rate, level progress %, gem count, shop count, customer count
+- Gem system: earn via milestones, spend for instant upgrade/speed boost, tap FX to collect
+- Mission panel: task + reward (coins/gems) + per-task progress bar

@@ -32,7 +32,7 @@
 
 ---
 
-## [0.1.1] — Material & Lighting _(ongoing — apply as you go)_
+## [0.1.1] — Material & Lighting _(apply as you go)_
 
 ### Planned
 
@@ -52,19 +52,15 @@
 
 - `CharacterBase.cs` — abstract base class (MoveTo, PlayAnim, StopMoving, HasReachedDestination)
 - `BaseAnimator.controller` — 4 states: Idle, Walk, Browse, Pay
-  - Any State → all states (Trigger conditions, Has Exit Time: off)
 - `Customer_Normal` prefab (placeholder Capsule)
   - Mesh: Capsule | Material: URP/Simple Lit, #4A90D9
-  - Animator: Customer_Normal_Override controller
   - NavMeshAgent: Speed 3.5, Stopping Distance 1.5, Radius 0.3, Base Offset 0
-  - Position Y: 1 (ground level)
 - `Customer_Normal_Override.overrideController` → BaseAnimator override
 
 ### Lessons Learned
 
-- AnimatorOverrideController slots only appear when BaseAnimator states have a Motion (clip) assigned
-- Step 15 (animation clips) skipped — will wire when real 3D model arrives
-- Drag-dropping prefab sets Y to 0 → spawn via code using CustomerSpawner
+- AnimatorOverrideController slots only appear when BaseAnimator states have a Motion clip assigned
+- Step 15 (animation clips) skipped — wire when real 3D model arrives
 
 ---
 
@@ -74,55 +70,77 @@
 
 #### Step 16 — LoadingScreen scene
 
-- `LoadingManager.cs` — AsyncOperation with progress bar fill animation
-- Routing logic: `PlayerPrefs.GetInt("save_onboarded") == 1` → loads `Level_01`, else → loads `Onboarding`
-- UI: BG #1A1A2E, Logo text "MALL TYCOON" #F5A623, ProgressBar_Fill (Filled/Horizontal, UISprite, #F5A623), LoadingText
-- Canvas Scaler: 1080×1920, Match 0.5
-- ProgressBar Pos Y: -400, LoadingText Pos Y: -480 (tuned for both Windows and Android)
+- `LoadingManager.cs` — AsyncOperation with progress bar fill
+- Routing: `save_onboarded == 1` → Level_01, else → Onboarding
+- ProgressBar Pos Y: -400, LoadingText Pos Y: -480
 
 #### Steps 17–20 — Onboarding scene
 
-- Gender selection: BtnMale / BtnFemale
-- Age group selection: BtnYoung / BtnAdult / BtnSenior
-- `OnboardingManager.cs`: buttons wired via `AddListener` (not Inspector OnClick)
-- Visual feedback: default color #444466, selected color #4A90D9
-- START GAME button disabled until both gender and age are selected
-- On confirm: saves `save_char_gender`, `save_char_age`, `save_onboarded = 1` → loads Level_01
-- Returning player skip: LoadingManager checks `save_onboarded` and bypasses Onboarding
+- Gender + Age selection with color feedback (#4A90D9 selected, #444466 default)
+- `OnboardingManager.cs` — AddListener pattern
+- START GAME disabled until both selected
+- Saves save_char_gender, save_char_age, save_onboarded=1
 
-#### Step 21 — TutorialManager ✅ COMPLETE
+#### Step 21 — TutorialManager ✅
 
-- `TutorialManager.cs` — Singleton, auto-starts on first Level_01 load
-- Trigger condition: `save_onboarded == 1` && `save_tutorial_done == 0`
 - 4-step arrow + message overlay in Level_01
-  - Step 1: "Tap here to build your first shop!" → Build button (arrow Y: -750, rot: 180°)
-  - Step 2: "Customers will enter through here" → South entrance (arrow Y: 200, rot: 90°)
-  - Step 3: "Place your shop anywhere on the floor" → Floor center (arrow Y: 0, rot: 180°)
-  - Step 4: "Earn money and upgrade your shops!" → HUD top (arrow Y: 800, rot: 180°)
-- Tap anywhere → next step | 0.5s input block between steps
-- Arrow: rotated Image (UISprite, #F5A623) — placeholder, swap when real sprite arrives
-- MessageBox: #1A1A2E bg, TMP white text size 36, bottom-center anchored pos Y: 120
-- New PlayerPrefs key: `"save_tutorial_done"` → int (0/1)
+- Tap anywhere → next step, 0.5s input block
+- `save_tutorial_done` key prevents replay
 - Tested: Windows ✅ Android ✅
 
 ### Lessons Learned
 
-- `Image Type: Filled` requires a Source Image (e.g. UISprite) to be assigned first
-- Canvas Match 0.5 is required for correct scaling across portrait and landscape
-- Buttons should be wired via `AddListener` in script — cleaner than Inspector OnClick
-- TMP import dialog appears first time — click Import TMP Essentials
+- `Image Type: Filled` requires Source Image assigned first
+- `save_tutorial_done` must be reset separately — `DeleteAll()` also clears `save_onboarded`
+- Button wiring via `AddListener` — not Inspector OnClick
 
 ---
 
-## [0.4.0] — Phase 4: Economy & Shop _(not started)_
+## [0.4.0] — Phase 4: Economy & Shop ✅ COMPLETE
 
-### Planned
+### Done
 
-- EconomyManager with 1.2x level multiplier
-- ShopData ScriptableObject
-- GroceryShop prefab
-- ShopController.cs
-- Build UI + cost deduction
+#### Step 22 — EconomyManager.cs
+
+- Singleton pattern
+- `AddMoney(float)` — fires `OnMoneyChanged` event
+- `SpendMoney(float)` — returns bool (false if insufficient)
+- Starting coins: 500
+- LevelManager multiplier placeholder — wired in Phase 6
+
+#### Step 23 — ShopData ScriptableObject
+
+- `[CreateAssetMenu]` — Right Click → Create → MallTycoon → Shop Data
+- Fields: shopName, unlockLevel, baseCost, baseIncome, maxCustomers, shopPrefab, shopIcon
+- Asset created: `GroceryShop_Data` (Cost:100, Income:20, MaxCustomers:2, UnlockLevel:1)
+
+#### Step 24 — GroceryShop Prefab
+
+- Hierarchy: GroceryShop → ShopBody (Cube, #4A90D9) + ShopSign (Cube, #F5A623) + ShopTrigger (Box Collider, IsTrigger)
+- Materials: Mat_GroceryShop (URP/Lit, #4A90D9), Mat_ShopSign (URP/Lit, #F5A623)
+- Saved to `Assets/_Game/Prefabs/Shops/GroceryShop`
+- shopPrefab assigned in GroceryShop_Data ✅
+
+#### Step 25 — ShopController.cs
+
+- Attached to GroceryShop prefab
+- `Build()` — sets isBuilt=true, fires `OnShopBuilt` event
+- `GenerateIncome()` — called every 5s, sends baseIncome to EconomyManager
+- Income interval: 5 seconds
+
+#### Step 26 — BuildUI.cs + Build Panel
+
+- BuildPanel: Bottom Center, 400×120, #1A1A2E
+- BtnBuild: #4A90D9, disabled+grey (#666666) when coins insufficient
+- TxtCoins: Top Center, #F5A623, updates via OnMoneyChanged event
+- Shop spawns at fixed position (0, 0, 5) — grid placement in Phase 7
+- Button disabled text stays white (Disabled Color set to #FFFFFF in Button component)
+
+### Notes
+
+- Shop spawn position is fixed for now — grid-based placement in Phase 7 (Step 37–38)
+- Shop count display + per-min income rate + level progress — planned for Phase 7 HUD (Step 39)
+- Gem system planned for Phase 7
 
 ---
 
@@ -131,7 +149,7 @@
 ### Planned
 
 - NavMesh bake on Level_01
-- CustomerController state machine
+- CustomerController state machine (Spawned→Walking→Shopping→Queuing→Paying→Leaving)
 - CustomerSpawner
 - Full shopping flow
 - Payment wired to EconomyManager
@@ -144,8 +162,8 @@
 
 - LevelObjectiveManager
 - Satisfaction system
-- LevelManager + star calculation
-- Mission UI
+- LevelManager + star calculation (wires income multiplier)
+- Mission UI panel
 
 ---
 
@@ -153,10 +171,16 @@
 
 ### Planned
 
-- 3-tier shop upgrade
-- Upgrade UI panel
-- Full HUD
-- Level complete panel
+- Grid-based shop placement
+- 3-tier shop upgrade system
+- **Full HUD (number-driven, fun):**
+  - 💰 Coins + per-min income rate e.g. `+$48/min`
+  - 📊 Level progress bar + % + goal number e.g. `67% (2/3)`
+  - 💎 Gems display + collect mechanic
+  - 🏪 Shop count e.g. `Shops: 3`
+  - 👥 Active customer count e.g. `Customers: 7`
+- Mission panel: task list + reward (coins/gems) + per-task progress bar
+- Level complete panel: ⭐⭐⭐ + coins earned + next level
 - Cinematic trigger on shop unlock
 
 ---
@@ -166,10 +190,8 @@
 ### Planned
 
 - AudioManager.cs (BGM + SFX, DontDestroyOnLoad)
-- BGM: bgm_menu, bgm_mall
-- SFX: click, coin, customer arrive/pay, shop unlock, level complete
 - FXManager.cs (object pool)
-- FX_CoinEarn, FX_ShopUnlock, FX_LevelComplete prefabs
+- FX_CoinEarn, FX_ShopUnlock, FX_LevelComplete, FX_GemCollect prefabs
 
 ---
 
@@ -178,9 +200,7 @@
 ### Planned
 
 - SafeAreaHandler.cs
-- Canvas Scaler 1080×1920 setup
 - SaveManager (PlayerPrefs)
-- Save: coins, level, stars, shops, audio volumes, character
 - ResetManager + confirmation UI
 
 ---
@@ -189,9 +209,7 @@
 
 ### Done
 
-- Android build settings configured
-  - Package: `com.tusher.shoppingmalltycoon`
-  - IL2CPP, ARM64
+- Android build settings configured (com.tusher.shoppingmalltycoon, IL2CPP, ARM64)
 - Phase 1 installed and tested on Android ✅
 
 ### Remaining
@@ -203,8 +221,6 @@
 ---
 
 ## [1.0.0] — MVP Release _(target)_
-
-### Goal
 
 - Level 1–3 fully playable on Android
 - All Phase 1–9 complete

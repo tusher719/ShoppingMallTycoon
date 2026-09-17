@@ -78,6 +78,8 @@ public void PlayLevelComplete(float duration = 5f, Action onComplete = null) { .
 ### 6. Income Formula
 
 ```csharp
+// Per-interval income (every 5s per shop, Phase 4)
+// LevelManager wired in Phase 6 (Step 35)
 float multiplier = Mathf.Pow(1.2f, LevelManager.Instance.CurrentLevelIndex);
 float income = baseIncome * multiplier;
 ```
@@ -85,11 +87,8 @@ float income = baseIncome * multiplier;
 ### 7. AudioManager — BGM + SFX
 
 ```csharp
-// BGM
 AudioManager.Instance.PlayBGM("bgm_mall");
 AudioManager.Instance.StopBGM();
-
-// SFX
 AudioManager.Instance.PlaySFX("sfx_coin");
 AudioManager.Instance.PlaySFX("sfx_click");
 ```
@@ -180,83 +179,79 @@ Main Camera
     └── VC_LevelComplete (Output: Channel02, triggered via CameraManager)
 ```
 
-- Cinematic VCs live on Channel02, triggered via CameraManager script
-- VC_Gameplay is always live on the Default channel
+---
 
-### Camera Controls
+## 💰 EconomyManager (Phase 4 — Step 22) ✅
 
-- Input System: New Input System Package (Unity.InputSystem)
-- PC: Mouse drag pan + scroll wheel zoom
-- Android: Single finger drag pan + pinch zoom
-- `EnhancedTouchSupport.Enable()` must be called in OnEnable
-- Pan bounds: X(-15 to 15), Z(-15 to 15)
-- Zoom bounds: OrthographicSize(5 to 20)
+```csharp
+public static event Action<float> OnMoneyChanged;
+public void AddMoney(float amount)    // fires OnMoneyChanged
+public bool SpendMoney(float amount)  // returns false if insufficient
+// Starting coins: 500
+// LevelManager multiplier wired in Phase 6 (Step 35)
+```
+
+## 🏪 ShopData ScriptableObject (Phase 4 — Step 23) ✅
+
+```
+[CreateAssetMenu] ShopData : ScriptableObject
+- shopName, unlockLevel
+- baseCost, baseIncome
+- maxCustomers
+- shopPrefab, shopIcon
+Asset: GroceryShop_Data (Cost: 100, Income: 20, MaxCustomers: 2)
+```
+
+## 🏗️ ShopController (Phase 4 — Step 25) ✅
+
+```csharp
+public void Build()              // sets isBuilt=true, fires OnShopBuilt
+void GenerateIncome()            // called every incomeInterval (5s)
+public static event Action<ShopController> OnShopBuilt;
+```
+
+## 🖥️ BuildUI (Phase 4 — Step 26) ✅
+
+```csharp
+// BuildPanel — Bottom Center, 400×120, #1A1A2E
+// BtnBuild — #4A90D9, disabled+grey when coins insufficient
+// TxtCoins — Top Center, #F5A623
+// Button disable logic: btnBuild.interactable = canAfford
+```
 
 ---
 
-## 🎨 Material & Lighting Setup (URP)
+## 🎨 HUD Design Plan (Phase 7 — Step 39)
 
-### Lighting Rules
-
-- **Render Pipeline:** URP (Universal Render Pipeline)
-- All materials must use **URP/Lit** or **URP/Simple Lit** shader
-- Never use Standard shader — it turns pink in URP
-
-### Scene Lighting
+> Planned — number-driven, fun, always readable
 
 ```
-Directional Light:
-- Rotation: (50, -30, 0)
-- Intensity: 1.0
-- Color: Warm white (#FFF5E0)
-- Shadow Type: Soft Shadows
-- Shadow Strength: 0.5
+TopBar (always visible):
+├── 💰 Coins          — current coins + per-min income rate  e.g. "💰 1,250  (+$48/min)"
+├── ⭐ Stars           — current level stars earned
+├── 📊 Level Progress — % bar + number  e.g. "67% (2/3 goals)"
+└── 💎 Gems           — gem count (fast upgrade currency)
 
-Environment:
-- Skybox: URP default or solid color (mobile performance)
-- Ambient Mode: Flat
-- Ambient Color: soft blue-grey (#8AA0B0)
-- Fog: disabled (mobile performance)
+BottomBar:
+├── 🏪 Shops Built    — e.g. "Shops: 3"
+├── 👥 Customers      — active customer count  e.g. "Customers: 7"
+├── [Build]  [Upgrade]  [Missions]  buttons
+
+MissionPanel:
+├── Task list with reward (coins/gems)
+└── Progress bar per task  e.g. "Serve 10 customers  7/10"
+
+LevelCompletePanel:
+├── ⭐⭐⭐ star display
+├── Coins earned this level
+└── Next level button
 ```
 
-### URP Asset Settings (mobile-optimized)
+**Gem System (Phase 7):**
 
-```
-Rendering:
-- Depth Texture: off
-- Opaque Texture: off
-
-Quality:
-- Anti Aliasing: 2x (or off for low-end)
-- Render Scale: 1.0
-
-Lighting:
-- Main Light: Per Pixel
-- Additional Lights: Disabled (mobile performance)
-- Cast Shadows: on (main light only)
-
-Post Processing: off (Phase 1 MVP)
-```
-
-### Material Conventions
-
-| Object Type  | Shader              | Notes                   |
-| ------------ | ------------------- | ----------------------- |
-| Mall floor   | URP/Lit             | Albedo only, smooth=0   |
-| Walls        | URP/Lit             | Albedo only             |
-| Shop prefabs | URP/Lit             | Low-poly, bright colors |
-| Characters   | URP/Simple Lit      | Mobile-friendly         |
-| FX particles | URP/Particles/Unlit | Additive blend          |
-
-### Low-Poly Color Palette
-
-```
-Floor:    #E8DCC8  (warm beige)
-Walls:    #F5F0E8  (off-white)
-Accent:   #4A90D9  (blue — shop highlights)
-Income:   #F5A623  (gold — coin/money UI)
-Success:  #7ED321  (green — objectives)
-```
+- Gems earned via: completing missions, level complete bonus, daily reward
+- Gems used for: instant shop upgrade, speed boost
+- Gem collect: tap floating gem prefab spawned on milestone
 
 ---
 
@@ -281,16 +276,9 @@ AudioManager (DontDestroyOnLoad)
 └── SFX AudioSource   → PlaySFX(string key) → PlayOneShot()
 
 Audio/
-├── BGM/
-│   ├── bgm_menu.mp3
-│   └── bgm_mall.mp3
-└── SFX/
-    ├── sfx_click.wav
-    ├── sfx_coin.wav
-    ├── sfx_customer_arrive.wav
-    ├── sfx_customer_pay.wav
-    ├── sfx_shop_unlock.wav
-    └── sfx_level_complete.wav
+├── BGM/  bgm_menu.mp3, bgm_mall.mp3
+└── SFX/  sfx_click, sfx_coin, sfx_customer_arrive,
+          sfx_customer_pay, sfx_shop_unlock, sfx_level_complete
 ```
 
 ---
@@ -298,16 +286,17 @@ Audio/
 ## ✨ FX Architecture
 
 ```
-FXManager (Singleton)
-└── Object Pool per FX type
-    ├── Pool: FX_CoinEarn    (size: 5)
-    ├── Pool: FX_ShopUnlock  (size: 3)
-    └── Pool: FX_LevelComplete (size: 1)
+FXManager (Singleton) — Object Pool per FX type
+├── Pool: FX_CoinEarn    (size: 5)
+├── Pool: FX_ShopUnlock  (size: 3)
+├── Pool: FX_LevelComplete (size: 1)
+└── Pool: FX_GemCollect  (size: 5)  ← NEW (Phase 7)
 
 Trigger points:
-- EconomyManager.AddMoney()   → FXManager.PlayFX(CoinEarn, pos)
-- ShopController.BuildShop()  → FXManager.PlayFX(ShopUnlock, pos)
-- LevelManager.CompleteLevel()→ FXManager.PlayFX(LevelComplete, center)
+- EconomyManager.AddMoney()    → FX_CoinEarn
+- ShopController.Build()       → FX_ShopUnlock
+- LevelManager.CompleteLevel() → FX_LevelComplete
+- Milestone reached            → FX_GemCollect (tap to collect)
 ```
 
 ---
@@ -317,18 +306,21 @@ Trigger points:
 ```
 Canvas (Screen Space - Overlay)
 └── Canvas Scaler: Scale With Screen Size, 1080×1920, match 0.5
-    ├── SafeArea (SafeAreaHandler.cs adjusts this)
-    │   ├── TopBar (money, stars, level)
-    │   ├── BottomBar (build, upgrade, missions buttons)
-    │   ├── BuildPanel
+    ├── SafeArea (SafeAreaHandler.cs)
+    │   ├── TopBar
+    │   │   ├── TxtCoins + TxtIncomeRate   ← NEW
+    │   │   ├── TxtStars
+    │   │   ├── LevelProgressBar + TxtProgress  ← NEW
+    │   │   └── TxtGems                    ← NEW
+    │   ├── BottomBar
+    │   │   ├── TxtShopCount               ← NEW
+    │   │   ├── TxtCustomerCount           ← NEW
+    │   │   └── [Build] [Upgrade] [Missions] buttons
+    │   ├── BuildPanel ✅ DONE
     │   ├── UpgradePanel
     │   ├── MissionPanel
     │   └── LevelCompletePanel
-    └── TutorialPanel
-        ├── Overlay (black, alpha 0.4)
-        ├── Arrow (Image, #F5A623, rotated per step)
-        └── MessageBox (#1A1A2E)
-            └── MessageText (TMP, white, size 36)
+    └── TutorialPanel ✅ DONE
 ```
 
 ---
@@ -336,12 +328,7 @@ Canvas (Screen Space - Overlay)
 ## 💾 Save Architecture
 
 ```
-Phase 1 (MVP):
-SaveManager → PlayerPrefs → string/int/float keys
-
-Phase 2 (post-MVP):
-SaveManager → JSON → Application.persistentDataPath/save.json
-
-Future:
-SaveManager → REST API → Remote DB + User Auth
+Phase 1 (MVP): SaveManager → PlayerPrefs
+Phase 2 (post-MVP): SaveManager → JSON → persistentDataPath/save.json
+Future: SaveManager → REST API → Remote DB + User Auth
 ```
