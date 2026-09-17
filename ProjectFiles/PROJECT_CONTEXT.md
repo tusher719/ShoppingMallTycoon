@@ -1,6 +1,6 @@
 # 🏬 Shopping Mall Tycoon — Project Context
 
-> New chat-এ এই file paste করলেই Claude পুরো project বুঝবে।
+> Paste this file into a new chat to give Claude full project context instantly.
 
 ---
 
@@ -10,6 +10,7 @@
 - **OS:** Windows, Git Bash terminal
 - **Unity Version:** Unity 6 (6000.0.47f1) — URP template
 - **Platform:** Android (primary), PC (secondary)
+- **Repo:** https://github.com/tusher719/ShoppingMallTycoon
 
 ---
 
@@ -18,7 +19,7 @@
 - **Genre:** Mobile Tycoon / Incremental Management
 - **Engine:** Unity 6 (URP)
 - **Core Loop:** Build Shop → Customers Arrive → Shop → Checkout → Earn → Upgrade → Expand → Level Complete
-- **Internet:** Offline-first. Future plan: optional user profile + database (not mandatory)
+- **Internet:** Offline-first. Optional user profile + remote DB planned for future (not MVP)
 - **Graphics:** 3D Low-Poly, Isometric view
 
 ---
@@ -27,10 +28,10 @@
 
 ### Setup (Cinemachine 3.1.7)
 
-- `using Unity.Cinemachine;` — namespace Cinemachine 2.x থেকে আলাদা
-- **CinemachineBrain:** Main Camera-তে, Channel Mask = Default only
+- `using Unity.Cinemachine;` — namespace is different from Cinemachine 2.x
+- **CinemachineBrain:** on Main Camera, Channel Mask = Default only
 - **VC_Gameplay:** Output Channel = Default, Orthographic size 10, Position (0,20,-15), Rotation (45,0,0) — always live
-- **Cinematic VCs:** Output Channel = Channel02 (Default uncheck) — CameraManager script দিয়ে trigger হয়
+- **Cinematic VCs:** Output Channel = Channel02 (Default unchecked) — triggered via CameraManager script
 
 ### Virtual Cameras
 
@@ -44,27 +45,21 @@
 
 ### Camera Controls (New Input System)
 
-- `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হয়
+- `EnhancedTouchSupport.Enable()` must be called in OnEnable
 - PC: Mouse drag pan + scroll wheel zoom
 - Android: Single finger drag pan + pinch zoom
 - Pan bounds: X(-15,15), Z(-15,15) | Zoom: OrthographicSize(5,20)
 
 ---
 
-## 🧍 Character & Animation System
+## 🧍 Character & Animation System ✅ DONE
 
 ### Architecture (Modular)
 
-- Each character = `CharacterBase` component
-- Animator Controller: one shared `BaseAnimator` with sub-state machines per role
-- Animation layers: Base layer (walk/idle) + Override layer (role-specific)
-- Avatar system: Humanoid rig — swap mesh, keep animator
-
-### Rules
-
-- Shared animations → common Animator Controller
-- Custom animations per character type → Animation Override Controller
-- New character types plug into same `CharacterBase` — no duplicate scripts
+- Each character has a `CharacterBase` component
+- Shared `BaseAnimator` controller with states per role
+- Custom animations per type via `AnimatorOverrideController`
+- Humanoid rig — swap mesh, keep animator
 
 ### Character Types
 
@@ -79,16 +74,23 @@
 
 ---
 
-## 🎮 First Launch — Onboarding
+## 🎬 Onboarding System ✅ DONE
 
-On first install, player sees:
+### Flow
 
-1. **Character Select Screen**
-   - Gender: Male / Female
-   - Age group: Young / Adult / Senior
-   - (Cosmetic only — affects player avatar/icon in UI)
-2. Tutorial starts after selection
-3. Selection saved to `PlayerPrefs` / Save file
+1. **LoadingScreen** — progress bar, routes to Onboarding or Level_01 based on `save_onboarded`
+2. **Onboarding scene** — Gender (Male/Female) + Age (Young/Adult/Senior) selection
+3. Saves to PlayerPrefs → loads Level_01
+4. **Tutorial** — 4-step arrow + message overlay inside Level_01 (Step 21, next)
+
+### Tutorial Steps (Level_01)
+
+| Step | Target Area           | Message                                 |
+| ---- | --------------------- | --------------------------------------- |
+| 1    | Build button (bottom) | "Tap here to build your first shop!"    |
+| 2    | South wall entrance   | "Customers will enter through here"     |
+| 3    | Mall floor center     | "Place your shop anywhere on the floor" |
+| 4    | HUD top area          | "Earn money and upgrade your shops!"    |
 
 ---
 
@@ -127,7 +129,7 @@ Formula: `incomeMultiplier = Mathf.Pow(1.2f, levelIndex)`
 ## 🔄 Game Reset
 
 - Settings panel → "Reset Game" → confirmation dialog
-- `PlayerPrefs.DeleteAll()` + JSON save → reload Onboarding
+- `PlayerPrefs.DeleteAll()` + JSON wipe → reload Onboarding scene
 
 ---
 
@@ -137,7 +139,7 @@ Formula: `incomeMultiplier = Mathf.Pow(1.2f, levelIndex)`
 Satisfaction = BaseSatisfaction - WaitingPenalty + ShopUpgradeBonus + DecorationBonus
 ```
 
-- > 80% → +10% customer rate
+- > 80% → +10% customer arrival rate
 - < 30% → customers start leaving
 
 ---
@@ -164,8 +166,8 @@ Satisfaction = BaseSatisfaction - WaitingPenalty + ShopUpgradeBonus + Decoration
 
 ## 📱 UI — Screen Auto-Fit
 
-- Canvas Scaler: Scale With Screen Size, 1080×1920, match 0.5
-- `SafeAreaHandler.cs` for notch/punch-hole
+- Canvas Scaler: Scale With Screen Size, 1080×1920, Match 0.5
+- `SafeAreaHandler.cs` handles notch and punch-hole displays
 
 ---
 
@@ -173,7 +175,7 @@ Satisfaction = BaseSatisfaction - WaitingPenalty + ShopUpgradeBonus + Decoration
 
 ### Critical Rules
 
-- **সব Material: URP/Lit বা URP/Simple Lit shader** — Standard shader ব্যবহার করলে pink হবে
+- **All materials must use URP/Lit or URP/Simple Lit** — Standard shader turns pink in URP
 - Characters: URP/Simple Lit (mobile performance)
 - FX particles: URP/Particles/Unlit (additive blend)
 
@@ -191,15 +193,15 @@ Shadow: Soft, Strength 0.5
 ```
 Additional Lights: Disabled
 Post Processing: Off (MVP)
-Anti Aliasing: 2x বা Off
+Anti Aliasing: 2x or Off
 Cast Shadows: Main light only
 ```
 
 ### Color Palette (Low-Poly)
 
 ```
-Floor:   #E8DCC8  Walls:  #F5F0E8
-Accent:  #4A90D9  Gold:   #F5A623
+Floor:   #E8DCC8  |  Walls:  #F5F0E8
+Accent:  #4A90D9  |  Gold:   #F5A623
 Success: #7ED321
 ```
 
@@ -209,12 +211,26 @@ Success: #7ED321
 
 - Phase 1: PlayerPrefs | Phase 2: JSON | Future: Remote DB
 
+### PlayerPrefs Keys
+
+```
+"save_coins"         → float
+"save_level"         → int
+"save_stars_X"       → int (X = level index)
+"save_shop_X_level"  → int
+"save_char_gender"   → string ("male"/"female")
+"save_char_age"      → string ("young"/"adult"/"senior")
+"save_onboarded"     → int (0/1)
+"vol_bgm"            → float (0.0–1.0)
+"vol_sfx"            → float (0.0–1.0)
+```
+
 ---
 
 ## 🏗️ Mall Layout
 
 - Grid-based, tile size: 5×5 units
-- Level 1: 40×40 units, entrance gap 8 units South wall (X -4 to +4)
+- Level 1: 40×40 units floor, 8-unit entrance gap at South wall (X -4 to +4)
 
 ---
 
@@ -233,7 +249,7 @@ Success: #7ED321
 
 ## 🛒 Shop Types (unlock order)
 
-1. Mini Grocery (L1) → Clothing (L2) → Shoe (L3) → Coffee (L4) → Food Court (L5) → Electronics (L6+)
+Mini Grocery (L1) → Clothing (L2) → Shoe (L3) → Coffee (L4) → Food Court (L5) → Electronics (L6+)
 
 ---
 
@@ -258,7 +274,9 @@ Success: #7ED321
 | `UIManager.cs`             | HUD, panels                              |
 | `SaveManager.cs`           | Save/load                                |
 | `OnboardingManager.cs`     | First-launch flow                        |
-| `ResetManager.cs`          | Full reset                               |
+| `LoadingManager.cs`        | Loading screen + scene routing           |
+| `TutorialManager.cs`       | In-game tutorial arrows + messages       |
+| `ResetManager.cs`          | Full game reset                          |
 
 ---
 
@@ -268,24 +286,43 @@ Success: #7ED321
 Assets/
 └── _Game/
     ├── Scripts/
-    │   ├── Core/          GameManager, AudioManager, FXManager, SafeAreaHandler, ResetManager
+    │   ├── Core/          GameManager, AudioManager, FXManager, SafeAreaHandler, ResetManager, LoadingManager
     │   ├── Camera/        CameraManager, CameraInputHandler
     │   ├── Character/     CharacterBase, CustomerController, CustomerSpawner, StaffController
     │   ├── Shop/          ShopController, ShopData
     │   ├── Economy/       EconomyManager
-    │   ├── Level/         LevelManager, LevelObjectiveManager
+    │   ├── Level/         LevelManager, LevelObjectiveManager, TutorialManager
     │   ├── UI/            UIManager, BuildUI, UpgradeUI, OnboardingManager
     │   └── Save/          SaveManager
     ├── Animations/
     ├── Prefabs/           Characters/, Shops/, FX/, Environment/
-    ├── Scenes/            MainMenu, Onboarding, Levels/Level_01~03
+    ├── Scenes/            LoadingScreen, Onboarding, Levels/Level_01~03
     ├── ScriptableObjects/ Shops/, Levels/, Customers/
     ├── Audio/             BGM/, SFX/
     └── Art/               Characters/, Environment/, Shops/, Props/
 ```
 
+### Build Settings Order
+
+```
+0 - _Game/Scenes/LoadingScreen
+1 - _Game/Scenes/Onboarding
+2 - _Game/Scenes/Level_01
+```
+
 ---
 
-## 🚫 MVP-তে নেই
+## 🚫 Not in MVP
 
-- Staff system, Multiple floors, IAP/Ads, Cloud save, Daily rewards, VIP customers, Decoration system
+Staff system, Multiple floors, IAP/Ads, Cloud save, Daily rewards, VIP customers, Decoration system
+
+---
+
+## ⚠️ Known Issues / Lessons Learned
+
+- Cinemachine 3.x Priority checkbox does not work → solved with Output Channel isolation
+- `EnhancedTouchSupport.Enable()` must be called in OnEnable for touch input to work
+- Drag-dropping prefab resets Y to 0 → always spawn via CustomerSpawner in code
+- `Image Type: Filled` requires a Source Image (UISprite) assigned before the option appears
+- Canvas Match must be 0.5 for correct scaling on both portrait and landscape displays
+- Wire buttons via `AddListener` in script, not via Inspector OnClick events

@@ -25,7 +25,7 @@
 
 ### 1. Singleton Pattern
 
-`GameManager`, `EconomyManager`, `CameraManager`, `AudioManager`, `FXManager`, `SaveManager`, `UIManager` — সব Singleton।
+`GameManager`, `EconomyManager`, `CameraManager`, `AudioManager`, `FXManager`, `SaveManager`, `UIManager` — all Singletons.
 
 ```csharp
 public static T Instance { get; private set; }
@@ -34,9 +34,9 @@ void Awake() { if (Instance == null) Instance = this; else Destroy(gameObject); 
 
 ### 2. ScriptableObject for Data
 
-Shop config, level config, customer config — সব ScriptableObject। Script-এ hardcode করবে না।
+Shop config, level config, customer config — all ScriptableObjects. Never hardcode in scripts.
 
-### 3. CharacterBase — সব character এই class extend করবে
+### 3. CharacterBase — all characters extend this class
 
 ```csharp
 public abstract class CharacterBase : MonoBehaviour {
@@ -71,9 +71,9 @@ public void PlayLevelComplete(float duration = 5f, Action onComplete = null) { .
 **Cinemachine 3.x Notes:**
 
 - `using Unity.Cinemachine;` (namespace changed from Cinemachine 2.x)
-- Priority checkbox কাজ করে না — Output Channel দিয়ে isolate করো
-- CinemachineBrain Channel Mask = Default (cinematic VCs আলাদা channel-এ)
-- Input System: `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হবে
+- Priority checkbox does not work — use Output Channel to isolate VCs
+- CinemachineBrain Channel Mask = Default (cinematic VCs on separate channel)
+- Input System: `EnhancedTouchSupport.Enable()` must be called in OnEnable
 
 ### 6. Income Formula
 
@@ -94,7 +94,7 @@ AudioManager.Instance.PlaySFX("sfx_coin");
 AudioManager.Instance.PlaySFX("sfx_click");
 ```
 
-- Two AudioSource: one BGM (loop=true), one SFX (PlayOneShot)
+- Two AudioSources: one BGM (loop=true), one SFX (PlayOneShot)
 - Volume saved to PlayerPrefs: `"vol_bgm"`, `"vol_sfx"`
 
 ### 8. FXManager — object pool
@@ -179,15 +179,15 @@ Main Camera
     └── VC_LevelComplete (Output: Channel02, triggered via CameraManager)
 ```
 
-- Cinematic VCs Channel02-এ থাকে, CameraManager script দিয়ে trigger হয়
-- VC_Gameplay সবসময় Default channel-এ live
+- Cinematic VCs live on Channel02, triggered via CameraManager script
+- VC_Gameplay is always live on the Default channel
 
 ### Camera Controls
 
 - Input System: New Input System Package (Unity.InputSystem)
 - PC: Mouse drag pan + scroll wheel zoom
 - Android: Single finger drag pan + pinch zoom
-- `EnhancedTouchSupport.Enable()` OnEnable-এ call করতে হবে
+- `EnhancedTouchSupport.Enable()` must be called in OnEnable
 - Pan bounds: X(-15 to 15), Z(-15 to 15)
 - Zoom bounds: OrthographicSize(5 to 20)
 
@@ -198,8 +198,8 @@ Main Camera
 ### Lighting Rules
 
 - **Render Pipeline:** URP (Universal Render Pipeline)
-- সব Material অবশ্যই **URP/Lit** বা **URP/Simple Lit** shader ব্যবহার করবে
-- Standard shader ব্যবহার করবে না — URP-তে pink হয়ে যাবে
+- All materials must use **URP/Lit** or **URP/Simple Lit** shader
+- Never use Standard shader — it turns pink in URP
 
 ### Scene Lighting
 
@@ -212,7 +212,7 @@ Directional Light:
 - Shadow Strength: 0.5
 
 Environment:
-- Skybox: URP default অথবা solid color (mobile performance)
+- Skybox: URP default or solid color (mobile performance)
 - Ambient Mode: Flat
 - Ambient Color: soft blue-grey (#8AA0B0)
 - Fog: disabled (mobile performance)
@@ -226,7 +226,7 @@ Rendering:
 - Opaque Texture: off
 
 Quality:
-- Anti Aliasing: 2x (বা off for low-end)
+- Anti Aliasing: 2x (or off for low-end)
 - Render Scale: 1.0
 
 Lighting:
@@ -304,9 +304,9 @@ FXManager (Singleton)
     └── Pool: FX_LevelComplete (size: 1)
 
 Trigger points:
-- EconomyManager.AddMoney() → FXManager.PlayFX(CoinEarn, pos)
-- ShopController.BuildShop() → FXManager.PlayFX(ShopUnlock, pos)
-- LevelManager.CompleteLevel() → FXManager.PlayFX(LevelComplete, center)
+- EconomyManager.AddMoney()   → FXManager.PlayFX(CoinEarn, pos)
+- ShopController.BuildShop()  → FXManager.PlayFX(ShopUnlock, pos)
+- LevelManager.CompleteLevel()→ FXManager.PlayFX(LevelComplete, center)
 ```
 
 ---

@@ -1,58 +1,60 @@
-আমি Unity 6 (6000.0.47f1, URP) দিয়ে Android Mobile Tycoon game বানাচ্ছি — Shopping Mall Tycoon।
+I'm building Shopping Mall Tycoon — a Unity 6 (6000.0.47f1) URP Android mobile tycoon game.
 Repo: https://github.com/tusher719/ShoppingMallTycoon
+Speak to me in Bangla, write all code and docs in English.
 
-## Stack:
+## Stack
 
-- Unity 6 URP, Android + PC
+- Unity 6 URP, Android (primary) + PC (secondary)
 - Cinemachine 3.1.7 (Unity.Cinemachine namespace)
 - NavMesh (customer AI)
-- New Input System (EnhancedTouchSupport)
+- New Input System + EnhancedTouchSupport
 - CharacterBase + AnimatorOverrideController (modular character system)
 
-## Core Loop:
+## Core Loop
 
 Build Shop → Customers Arrive → Shop → Checkout → Earn → Upgrade → Level Complete
 
-## Key Systems:
+## Already Done ✅
 
-- Camera: Isometric Orthographic (VC_Gameplay, Output: Default) + Cinemachine cinematic VCs (VC_ShopUnlock, VC_NewFloor, VC_MallOverview, VC_LevelComplete, Output: Channel02). CinemachineBrain Channel Mask = Default only. CameraInputHandler.cs: New Input System, drag pan + pinch zoom, PC & Android tested ✅
-- Characters: CharacterBase (abstract) → CustomerController / StaffController. BaseAnimator (Idle/Walk/Browse/Pay, Any State transitions, Trigger params). AnimatorOverrideController per type. Placeholder: Capsule, URP/Simple Lit #4A90D9
-- Onboarding: First launch → Gender (Male/Female) + Age (Young/Adult/Senior) → PlayerPrefs save
-- Economy: EconomyManager singleton, $ currency, multiplier = Mathf.Pow(1.2f, levelIndex)
-- Audio: AudioManager singleton (DontDestroyOnLoad), BGM (loop) + SFX (PlayOneShot). Keys: sfx_click, sfx_coin, sfx_customer_arrive, sfx_customer_pay, sfx_shop_unlock, sfx_level_complete
-- FX: FXManager singleton, object pool. Types: FX_CoinEarn, FX_ShopUnlock, FX_LevelComplete
-- UI: Canvas Scaler 1080×1920 match 0.5, SafeAreaHandler.cs for notch
-- Save Phase 1: PlayerPrefs. Keys: save_coins, save_level, save_stars_X, save_shop_X_level, save_char_gender, save_char_age, save_onboarded, vol_bgm, vol_sfx
-- Reset: PlayerPrefs.DeleteAll() → reload Onboarding scene
-- Materials: URP/Lit বা URP/Simple Lit — Standard shader = pink (URP-তে)
+- Step 01–10: Scene setup, mall floor/walls, Cinemachine cameras, CameraManager, touch controls (PC & Android tested)
+- Step 11–14: CharacterBase.cs, BaseAnimator, Customer_Normal prefab, AnimatorOverrideController (Step 15 skipped — wire when real model arrives)
+- Step 16: LoadingScreen scene + LoadingManager.cs (progress bar, routes to Onboarding or Level_01 based on save_onboarded)
+- Step 17–20: Onboarding scene — Gender (Male/Female) + Age (Young/Adult/Senior) select, OnboardingManager.cs (AddListener pattern, color feedback, START GAME disabled until both selected, saves to PlayerPrefs, skip logic for returning players)
 
-## Mall Level 1:
+## Build Settings
 
-- Floor: Plane 40×40 units
-- Walls: North, West, East solid. South split (Left + Right) with 8-unit entrance gap (X -4 to +4)
+0 - \_Game/Scenes/LoadingScreen
+1 - \_Game/Scenes/Onboarding
+2 - \_Game/Scenes/Level_01
 
-## MVP Scope: Level 1–3, single Grocery shop, no staff, no floors
+## Key Conventions
 
-## Already Done:
+- All materials: URP/Lit or URP/Simple Lit (Standard shader = pink in URP)
+- Singletons: GameManager, EconomyManager, CameraManager, AudioManager, FXManager, SaveManager, UIManager
+- Events: C# static events, no direct references
+- Buttons: wired via AddListener in script, not Inspector OnClick
+- Income multiplier: Mathf.Pow(1.2f, levelIndex)
+- PlayerPrefs keys: save_coins, save_level, save_stars_X, save_shop_X_level, save_char_gender, save_char_age, save_onboarded, vol_bgm, vol_sfx
+- Canvas Scaler: 1080×1920, Match 0.5
+- Cinemachine: Priority checkbox broken → use Output Channel isolation
+- EnhancedTouchSupport.Enable() must be called in OnEnable
 
-✅ Step 01 - Unity 6 URP project created
-✅ Step 02 - Folder structure (\_Game/Scripts/Core,Camera,Character,Shop,Economy,Level,UI,Save)
-✅ Step 03 - Level_01 scene + Hierarchy separators
-✅ Step 04 - Mall floor blockout (Plane, 40×40)
-✅ Step 05 - Walls + entrance gap
-✅ Step 06 - Cinemachine 3.1.7 installed
-✅ Step 07 - Isometric gameplay camera (VC_Gameplay, Ortho size 10, pos 0,20,-15, rot 45,0,0)
-✅ Step 08 - Cinematic VCs (ShopUnlock, NewFloor, MallOverview, LevelComplete — Channel02)
-✅ Step 09 - CameraManager.cs
-✅ Step 10 - Mobile touch controls (New Input System, drag pan + pinch zoom) — PC & Android ✅
-✅ Step 11 - CharacterBase.cs (MoveTo, PlayAnim, StopMoving, HasReachedDestination)
-✅ Step 12 - BaseAnimator controller (Idle/Walk/Browse/Pay, Any State transitions)
-✅ Step 13 - Customer_Normal prefab (Capsule placeholder, URP/Simple Lit #4A90D9, NavMeshAgent)
-✅ Step 14 - Customer_Normal_Override.overrideController → BaseAnimator
-⏭ Step 15 - Animation clips — real model আসলে করবো
+## Lessons Learned
 
-## Current Step:
+- Image Type: Filled requires UISprite assigned to Source Image first
+- Drag-dropping prefab resets Y to 0 → spawn via code
+- Canvas Match must be 0.5 for correct scaling on Android and Windows
 
-Step 16: Onboarding scene create
+## Current Step
 
-এখন Step 16 থেকে শুরু করো। কাজ শুরুর আগে কোনো confusion বা নতুন কিছু থাকলে আগে question করো।
+Step 21: TutorialManager.cs — 4-step arrow + message overlay in Level_01
+
+Tutorial steps:
+| Step | Target | Message |
+|------|--------------------|-----------------------------------------|
+| 1 | Build button | "Tap here to build your first shop!" |
+| 2 | South wall entrance| "Customers will enter through here" |
+| 3 | Mall floor center | "Place your shop anywhere on the floor" |
+| 4 | HUD top area | "Earn money and upgrade your shops!" |
+
+Start from Step 21. Ask questions first if anything is unclear.

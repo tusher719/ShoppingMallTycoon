@@ -2,7 +2,7 @@
 
 ---
 
-## [0.1.0] — Phase 1 Scene Setup ✅ COMPLETE
+## [0.1.0] — Phase 1: Scene Setup ✅ COMPLETE
 
 ### Done
 
@@ -17,22 +17,22 @@
 - Cinematic virtual cameras (VC_ShopUnlock, VC_NewFloor, VC_MallOverview, VC_LevelComplete)
   - Output Channel = Channel02 (Default unchecked)
   - CinemachineBrain Channel Mask = Default only
-- CameraManager.cs (cinematic switching via Priority)
+- CameraManager.cs (cinematic switching via Output Channel)
 - CameraInputHandler.cs — New Input System + EnhancedTouchSupport
   - PC: mouse drag pan + scroll wheel zoom
   - Android: single finger drag pan + pinch zoom
-  - Tested on both PC ✅ and Android ✅
+  - Tested on PC ✅ and Android ✅
 
 ### Lessons Learned
 
-- Cinemachine 3.x: `Unity.Cinemachine` namespace (2.x থেকে আলাদা)
-- Priority checkbox কাজ করে না → Output Channel দিয়ে VC isolate করতে হয়
-- New Input System-এ `Input.GetTouch` কাজ করে না → `EnhancedTouchSupport` ব্যবহার করতে হয়
-- Android build: Active Input Handling = Input System Package (New)
+- Cinemachine 3.x uses `Unity.Cinemachine` namespace (different from 2.x)
+- Priority checkbox does not work → use Output Channel to isolate VCs
+- `Input.GetTouch` does not work in New Input System → use `EnhancedTouchSupport`
+- Android build: Active Input Handling must be set to Input System Package (New)
 
 ---
 
-## [0.1.1] — Material & Lighting _(ongoing — চলতে চলতে করতে হবে)_
+## [0.1.1] — Material & Lighting _(ongoing — apply as you go)_
 
 ### Planned
 
@@ -42,17 +42,17 @@
 - Wall materials (URP/Lit, #F5F0E8)
 - Ambient light setup (Flat, #8AA0B0)
 
-> ⚠️ সব Material অবশ্যই URP/Lit বা URP/Simple Lit — Standard shader = pink
+> ⚠️ All materials must use URP/Lit or URP/Simple Lit — Standard shader = pink in URP
 
 ---
 
-## [0.2.0] — Phase 2 Characters ✅ COMPLETE
+## [0.2.0] — Phase 2: Characters ✅ COMPLETE
 
 ### Done
 
 - `CharacterBase.cs` — abstract base class (MoveTo, PlayAnim, StopMoving, HasReachedDestination)
 - `BaseAnimator.controller` — 4 states: Idle, Walk, Browse, Pay
-  - Any State → সব state (Trigger conditions, Has Exit Time: off)
+  - Any State → all states (Trigger conditions, Has Exit Time: off)
 - `Customer_Normal` prefab (placeholder Capsule)
   - Mesh: Capsule | Material: URP/Simple Lit, #4A90D9
   - Animator: Customer_Normal_Override controller
@@ -62,24 +62,51 @@
 
 ### Lessons Learned
 
-- AnimatorOverrideController slots তখনই দেখায় যখন BaseAnimator states-এ Motion (clip) assign থাকে
-- Step 15 (animation clips) skip — real 3D model আসলে করবো
-- Drag drop করলে prefab Y:0 হয়ে যায় → code থেকে spawn করবো (CustomerSpawner)
+- AnimatorOverrideController slots only appear when BaseAnimator states have a Motion (clip) assigned
+- Step 15 (animation clips) skipped — will wire when real 3D model arrives
+- Drag-dropping prefab sets Y to 0 → spawn via code using CustomerSpawner
 
 ---
 
-## [0.3.0] — Phase 3 Onboarding _(next up)_
+## [0.3.0] — Phase 3: Onboarding ✅ COMPLETE
 
-### Planned
+### Done
 
-- Onboarding scene
-- Gender + Age select UI
-- OnboardingManager.cs
-- Skip logic for returning players
+#### Step 16 — LoadingScreen scene
+
+- `LoadingManager.cs` — AsyncOperation with progress bar fill animation
+- Routing logic: `PlayerPrefs.GetInt("save_onboarded") == 1` → loads `Level_01`, else → loads `Onboarding`
+- UI: BG #1A1A2E, Logo text "MALL TYCOON" #F5A623, ProgressBar_Fill (Filled/Horizontal, UISprite, #F5A623), LoadingText
+- Canvas Scaler: 1080×1920, Match 0.5
+- ProgressBar Pos Y: -400, LoadingText Pos Y: -480 (tuned for both Windows and Android)
+
+#### Steps 17–20 — Onboarding scene
+
+- Gender selection: BtnMale / BtnFemale
+- Age group selection: BtnYoung / BtnAdult / BtnSenior
+- `OnboardingManager.cs`: buttons wired via `AddListener` (not Inspector OnClick)
+- Visual feedback: default color #444466, selected color #4A90D9
+- START GAME button disabled until both gender and age are selected
+- On confirm: saves `save_char_gender`, `save_char_age`, `save_onboarded = 1` → loads Level_01
+- Returning player skip: LoadingManager checks `save_onboarded` and bypasses Onboarding
+
+#### Step 21 — TutorialManager _(next)_
+
+- 4-step arrow + message overlay inside Level_01
+- Step 1: "Tap here to build your first shop!" → Build button area
+- Step 2: "Customers will enter through here" → South wall entrance gap
+- Step 3: "Place your shop anywhere on the floor" → Mall floor center
+- Step 4: "Earn money and upgrade your shops!" → HUD top area
+
+### Lessons Learned
+
+- `Image Type: Filled` requires a Source Image (e.g. UISprite) to be assigned first
+- Canvas Match 0.5 is required for correct scaling across portrait and landscape
+- Buttons should be wired via `AddListener` in script — cleaner than Inspector OnClick
 
 ---
 
-## [0.4.0] — Phase 4 Economy & Shop _(not started)_
+## [0.4.0] — Phase 4: Economy & Shop _(not started)_
 
 ### Planned
 
@@ -91,11 +118,11 @@
 
 ---
 
-## [0.5.0] — Phase 5 Customer System _(not started)_
+## [0.5.0] — Phase 5: Customer System _(not started)_
 
 ### Planned
 
-- NavMesh bake
+- NavMesh bake on Level_01
 - CustomerController state machine
 - CustomerSpawner
 - Full shopping flow
@@ -103,7 +130,7 @@
 
 ---
 
-## [0.6.0] — Phase 6 Objectives & Level _(not started)_
+## [0.6.0] — Phase 6: Objectives & Level _(not started)_
 
 ### Planned
 
@@ -114,7 +141,7 @@
 
 ---
 
-## [0.7.0] — Phase 7 Upgrade & UI _(not started)_
+## [0.7.0] — Phase 7: Upgrade & UI _(not started)_
 
 ### Planned
 
@@ -122,11 +149,11 @@
 - Upgrade UI panel
 - Full HUD
 - Level complete panel
-- Cinematic on shop unlock
+- Cinematic trigger on shop unlock
 
 ---
 
-## [0.7B.0] — Phase 7B Audio & FX _(not started)_
+## [0.7B.0] — Phase 7B: Audio & FX _(not started)_
 
 ### Planned
 
@@ -138,7 +165,7 @@
 
 ---
 
-## [0.8.0] — Phase 8 Save, Reset & Polish _(not started)_
+## [0.8.0] — Phase 8: Save, Reset & Polish _(not started)_
 
 ### Planned
 
@@ -150,7 +177,7 @@
 
 ---
 
-## [0.9.0] — Phase 9 Build & Test _(in progress)_
+## [0.9.0] — Phase 9: Build & Test _(in progress)_
 
 ### Done
 
@@ -161,7 +188,7 @@
 
 ### Remaining
 
-- Full MVP test (Phase 1–8 complete হলে)
+- Full MVP test (after Phase 1–8 complete)
 - Performance check + fix
 - PC standalone build test
 
