@@ -9,7 +9,7 @@
 - **Unity:** 6000.0.47f1 (URP)
 - **Platform:** Android (primary), PC (secondary)
 - **Repo:** https://github.com/tusher719/ShoppingMallTycoon
-- **Current Phase:** Phase 3 — Onboarding (Step 21 next)
+- **Current Phase:** Phase 4 — Economy & Shop (Step 22 next)
 
 ---
 
@@ -28,12 +28,6 @@
 | 09  | CameraManager.cs                        | ✅ Done | `camera: add CameraManager script`      |
 | 10  | Mobile camera controls (drag/pinch)     | ✅ Done | `camera: add mobile touch controls`     |
 
-**Notes:**
-
-- Cinemachine 3.x namespace: `Unity.Cinemachine` (different from 2.x)
-- Cinematic VCs: Output Channel = Channel02, Brain Channel Mask = Default only
-- Camera controls: New Input System + EnhancedTouchSupport — tested on PC ✅ and Android ✅
-
 ---
 
 ## 🎨 Material & Lighting — TODO _(apply as you go)_
@@ -45,8 +39,6 @@
 | L3  | Mall floor material (URP/Lit, #E8DCC8)         | ⬜     | Replace default grey plane                 |
 | L4  | Wall materials (URP/Lit, #F5F0E8)              | ⬜     | Apply to all walls                         |
 | L5  | Ambient light setup (Flat, #8AA0B0)            | ⬜     | Window → Rendering → Lighting              |
-
-> ⚠️ All new materials must use URP/Lit or URP/Simple Lit. Standard shader = pink in URP.
 
 ---
 
@@ -60,17 +52,9 @@
 | 14  | Animation override controller setup    | ✅ Done | `anim: add animation override system`   |
 | 15  | Walk / Idle / Browse / Pay clips wired | ⏭ Skip | Wire when real 3D model arrives         |
 
-**Notes:**
-
-- Placeholder: Capsule mesh, URP/Simple Lit, #4A90D9
-- BaseAnimator: 4 states (Idle, Walk, Browse, Pay), Any State transitions, Trigger parameters
-- AnimatorOverrideController: `Customer_Normal_Override` → BaseAnimator override
-- NavMeshAgent: Speed 3.5, Stopping Distance 1.5, Radius 0.3, Base Offset 0
-- Prefab position Y:1 (Capsule height = 2, pivot at center)
-
 ---
 
-## 🎬 Phase 3 — Onboarding _(in progress)_
+## 🎬 Phase 3 — Onboarding ✅ COMPLETE
 
 | #   | Task                                           | Status  | Git Commit Message                              |
 | --- | ---------------------------------------------- | ------- | ----------------------------------------------- |
@@ -79,7 +63,7 @@
 | 18  | Gender select UI (Male/Female)                 | ✅ Done | `onboard: add gender select UI`                 |
 | 19  | Age group select UI (Young/Adult/Senior)       | ✅ Done | `onboard: add age select UI`                    |
 | 20  | OnboardingManager.cs + skip logic              | ✅ Done | `onboard: add OnboardingManager`                |
-| 21  | TutorialManager.cs (arrow + message, Level_01) | ⬜      | `tutorial: add in-game tutorial system`         |
+| 21  | TutorialManager.cs (arrow + message, Level_01) | ✅ Done | `tutorial: add in-game tutorial system`         |
 
 **Notes:**
 
@@ -87,21 +71,13 @@
 - Buttons wired via `AddListener` — not Inspector OnClick
 - Selected button color: #4A90D9 | Default: #444466
 - START GAME disabled until both gender and age are selected
-- `Image Type: Filled` requires UISprite assigned to Source Image first
-- Canvas Match 0.5 needed for correct scaling on both Android and Windows
-
-**Tutorial Plan (Step 21):**
-
-| Step | Arrow Target          | Message                                 |
-| ---- | --------------------- | --------------------------------------- |
-| 1    | Build button (bottom) | "Tap here to build your first shop!"    |
-| 2    | South wall entrance   | "Customers will enter through here"     |
-| 3    | Mall floor center     | "Place your shop anywhere on the floor" |
-| 4    | HUD top area          | "Earn money and upgrade your shops!"    |
+- Tutorial: tap anywhere to advance, 0.5s input block between steps
+- `save_tutorial_done` key prevents tutorial replay
+- Tested Windows ✅ Android ✅
 
 ---
 
-## 💰 Phase 4 — Economy & Shop _(not started)_
+## 💰 Phase 4 — Economy & Shop _(next)_
 
 | #   | Task                                       | Status | Git Commit Message                            |
 | --- | ------------------------------------------ | ------ | --------------------------------------------- |
@@ -191,17 +167,19 @@
 
 ## 📌 Current Step
 
-**→ Step 21: TutorialManager.cs — in-game tutorial arrows + messages in Level_01**
+**→ Step 22: EconomyManager.cs — AddMoney, SpendMoney, income multiplier**
 
 ---
 
-## 🐛 Known Issues / Blockers
+## 🐛 Known Issues / Lessons Learned
 
 - Cinemachine 3.x Priority checkbox does not work → solved with Output Channel isolation
 - `EnhancedTouchSupport.Enable()` must be called in OnEnable for touch input
 - Drag-dropping prefab resets Y to 0 → spawn via CustomerSpawner in code
 - `Image Type: Filled` requires a Source Image (UISprite) assigned before option appears
 - Canvas Match must be 0.5 for correct scaling on both portrait and landscape
+- Wire buttons via `AddListener` in script, not via Inspector OnClick events
+- TMP import dialog appears first time — click Import TMP Essentials
 
 ---
 
@@ -218,6 +196,7 @@
 - Customer placeholder: Capsule, URP/Simple Lit #4A90D9, Y:1
 - Animation clips: wire when real 3D model arrives (Step 15 skipped)
 - First launch: gender + age onboarding before Level_01
+- Tutorial: auto-start, tap anywhere to advance, 0.5s input block, save_tutorial_done key
 - Income multiplier: `Mathf.Pow(1.2f, levelIndex)` per level
 - Audio: AudioManager singleton, BGM loop + SFX PlayOneShot
 - FX: FXManager object pool, 3 effect types (CoinEarn, ShopUnlock, LevelComplete)

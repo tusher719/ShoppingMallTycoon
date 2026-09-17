@@ -138,6 +138,7 @@ PlayerPrefs keys:
 "save_char_gender"   → string ("male"/"female")
 "save_char_age"      → string ("young"/"adult"/"senior")
 "save_onboarded"     → int (0/1)
+"save_tutorial_done" → int (0/1)
 "vol_bgm"            → float (0.0 - 1.0)
 "vol_sfx"            → float (0.0 - 1.0)
 ```
@@ -205,7 +206,7 @@ Main Camera
 
 ```
 Directional Light:
-- Rotation: (50, -30, 0)   ← isometric-friendly angle
+- Rotation: (50, -30, 0)
 - Intensity: 1.0
 - Color: Warm white (#FFF5E0)
 - Shadow Type: Soft Shadows
@@ -323,7 +324,11 @@ Canvas (Screen Space - Overlay)
     │   ├── UpgradePanel
     │   ├── MissionPanel
     │   └── LevelCompletePanel
-    └── (outside SafeArea — decorative bg elements)
+    └── TutorialPanel
+        ├── Overlay (black, alpha 0.4)
+        ├── Arrow (Image, #F5A623, rotated per step)
+        └── MessageBox (#1A1A2E)
+            └── MessageText (TMP, white, size 36)
 ```
 
 ---

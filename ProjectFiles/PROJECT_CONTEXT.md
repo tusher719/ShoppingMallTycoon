@@ -81,16 +81,19 @@
 1. **LoadingScreen** — progress bar, routes to Onboarding or Level_01 based on `save_onboarded`
 2. **Onboarding scene** — Gender (Male/Female) + Age (Young/Adult/Senior) selection
 3. Saves to PlayerPrefs → loads Level_01
-4. **Tutorial** — 4-step arrow + message overlay inside Level_01 (Step 21, next)
+4. **Tutorial** — 4-step arrow + message overlay inside Level_01 ✅ DONE
 
-### Tutorial Steps (Level_01)
+### Tutorial Steps (Level_01) ✅ DONE
 
-| Step | Target Area           | Message                                 |
-| ---- | --------------------- | --------------------------------------- |
-| 1    | Build button (bottom) | "Tap here to build your first shop!"    |
-| 2    | South wall entrance   | "Customers will enter through here"     |
-| 3    | Mall floor center     | "Place your shop anywhere on the floor" |
-| 4    | HUD top area          | "Earn money and upgrade your shops!"    |
+| Step | Target Area           | Message                                 | Arrow Y | Arrow Rot |
+| ---- | --------------------- | --------------------------------------- | ------- | --------- |
+| 1    | Build button (bottom) | "Tap here to build your first shop!"    | -750    | 180°      |
+| 2    | South wall entrance   | "Customers will enter through here"     | 200     | 90°       |
+| 3    | Mall floor center     | "Place your shop anywhere on the floor" | 0       | 180°      |
+| 4    | HUD top area          | "Earn money and upgrade your shops!"    | 800     | 180°      |
+
+- Tap anywhere → next step | 0.5s input block between steps
+- `save_tutorial_done` key controls replay prevention
 
 ---
 
@@ -221,6 +224,7 @@ Success: #7ED321
 "save_char_gender"   → string ("male"/"female")
 "save_char_age"      → string ("young"/"adult"/"senior")
 "save_onboarded"     → int (0/1)
+"save_tutorial_done" → int (0/1)
 "vol_bgm"            → float (0.0–1.0)
 "vol_sfx"            → float (0.0–1.0)
 ```
@@ -275,7 +279,7 @@ Mini Grocery (L1) → Clothing (L2) → Shoe (L3) → Coffee (L4) → Food Court
 | `SaveManager.cs`           | Save/load                                |
 | `OnboardingManager.cs`     | First-launch flow                        |
 | `LoadingManager.cs`        | Loading screen + scene routing           |
-| `TutorialManager.cs`       | In-game tutorial arrows + messages       |
+| `TutorialManager.cs`       | In-game tutorial arrows + messages ✅    |
 | `ResetManager.cs`          | Full game reset                          |
 
 ---
@@ -326,3 +330,4 @@ Staff system, Multiple floors, IAP/Ads, Cloud save, Daily rewards, VIP customers
 - `Image Type: Filled` requires a Source Image (UISprite) assigned before the option appears
 - Canvas Match must be 0.5 for correct scaling on both portrait and landscape displays
 - Wire buttons via `AddListener` in script, not via Inspector OnClick events
+- TMP import dialog appears first time TextMeshPro is used — click Import TMP Essentials

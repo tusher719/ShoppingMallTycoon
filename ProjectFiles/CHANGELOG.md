@@ -90,19 +90,27 @@
 - On confirm: saves `save_char_gender`, `save_char_age`, `save_onboarded = 1` → loads Level_01
 - Returning player skip: LoadingManager checks `save_onboarded` and bypasses Onboarding
 
-#### Step 21 — TutorialManager _(next)_
+#### Step 21 — TutorialManager ✅ COMPLETE
 
-- 4-step arrow + message overlay inside Level_01
-- Step 1: "Tap here to build your first shop!" → Build button area
-- Step 2: "Customers will enter through here" → South wall entrance gap
-- Step 3: "Place your shop anywhere on the floor" → Mall floor center
-- Step 4: "Earn money and upgrade your shops!" → HUD top area
+- `TutorialManager.cs` — Singleton, auto-starts on first Level_01 load
+- Trigger condition: `save_onboarded == 1` && `save_tutorial_done == 0`
+- 4-step arrow + message overlay in Level_01
+  - Step 1: "Tap here to build your first shop!" → Build button (arrow Y: -750, rot: 180°)
+  - Step 2: "Customers will enter through here" → South entrance (arrow Y: 200, rot: 90°)
+  - Step 3: "Place your shop anywhere on the floor" → Floor center (arrow Y: 0, rot: 180°)
+  - Step 4: "Earn money and upgrade your shops!" → HUD top (arrow Y: 800, rot: 180°)
+- Tap anywhere → next step | 0.5s input block between steps
+- Arrow: rotated Image (UISprite, #F5A623) — placeholder, swap when real sprite arrives
+- MessageBox: #1A1A2E bg, TMP white text size 36, bottom-center anchored pos Y: 120
+- New PlayerPrefs key: `"save_tutorial_done"` → int (0/1)
+- Tested: Windows ✅ Android ✅
 
 ### Lessons Learned
 
 - `Image Type: Filled` requires a Source Image (e.g. UISprite) to be assigned first
 - Canvas Match 0.5 is required for correct scaling across portrait and landscape
 - Buttons should be wired via `AddListener` in script — cleaner than Inspector OnClick
+- TMP import dialog appears first time — click Import TMP Essentials
 
 ---
 
