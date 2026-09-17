@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 067aa0abf96ebf14e91a4f6fc4ebc790, type: 3}
   m_Name: GroceryShop_Data
   m_EditorClassIdentifier: 
-  shopName: 
+  shopName: Grocery Shop
   unlockLevel: 1
   baseCost: 100
   baseIncome: 20
