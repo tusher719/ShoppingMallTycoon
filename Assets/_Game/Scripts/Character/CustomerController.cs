@@ -24,6 +24,8 @@ public class CustomerController : CharacterBase
     private float _stateTimer;
 
     public static event System.Action OnCustomerServed;
+    public static event System.Action OnCustomerWaiting;  // ← NEW
+    public static event System.Action OnCustomerLeft;     // ← NEW
 
     public override void Initialize()
     {
@@ -34,21 +36,11 @@ public class CustomerController : CharacterBase
     {
         switch (_state)
         {
-            case CustomerState.Spawned:
-                HandleSpawned();
-                break;
-            case CustomerState.Walking:
-                HandleWalking();
-                break;
-            case CustomerState.Shopping:
-                HandleShopping();
-                break;
-            case CustomerState.Paying:
-                HandlePaying();
-                break;
-            case CustomerState.Leaving:
-                HandleLeaving();
-                break;
+            case CustomerState.Spawned: HandleSpawned(); break;
+            case CustomerState.Walking: HandleWalking(); break;
+            case CustomerState.Shopping: HandleShopping(); break;
+            case CustomerState.Paying: HandlePaying(); break;
+            case CustomerState.Leaving: HandleLeaving(); break;
         }
     }
 
@@ -63,6 +55,7 @@ public class CustomerController : CharacterBase
     void HandleWalking()
     {
         if (!HasReachedDestination()) return;
+        OnCustomerWaiting?.Invoke();   // ← NEW: shop-এ পৌঁছে waiting শুরু
         PlayAnim("Browse");
         _stateTimer = shoppingDuration;
         SetState(CustomerState.Shopping);
@@ -84,8 +77,7 @@ public class CustomerController : CharacterBase
 
         if (targetShop != null)
         {
-            // LevelManager Phase 6-এ wire হবে, এখন multiplier = 1
-            float multiplier = 1f;
+            float multiplier = LevelManager.Instance != null ? LevelManager.Instance.GetIncomeMultiplier() : 1f;
             float income = targetShop.Data.baseIncome * multiplier;
             EconomyManager.Instance.AddMoney(income);
             Debug.Log($"[Customer] Paid: +{income} coins");
@@ -100,6 +92,7 @@ public class CustomerController : CharacterBase
     void HandleLeaving()
     {
         if (!HasReachedDestination()) return;
+        OnCustomerLeft?.Invoke();   // ← NEW: exit করার আগে fire
         Destroy(gameObject);
     }
 

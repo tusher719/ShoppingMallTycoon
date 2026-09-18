@@ -1,68 +1,67 @@
+// Assets/_Game/Scripts/Character/CustomerSpawner.cs
 using UnityEngine;
+using System.Collections.Generic;
 
 public class CustomerSpawner : MonoBehaviour
 {
-    [Header("References")]
-    public GameObject customerPrefab;
-    public Transform spawnPoint;
+    [Header("Settings")]
+    [SerializeField] private GameObject customerPrefab;
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private float spawnInterval = 8f;
+    [SerializeField] private int maxCustomers = 5;
 
-    [Header("Spawn Settings")]
-    public float spawnInterval = 8f;
-    public int maxCustomers = 5;
-
-    private ShopController _targetShop;
-    private float _spawnTimer;
-    private int _activeCustomers;
+    private List<ShopController> _builtShops = new();
+    private float _spawnTimer = 0f;
+    private int _activeCustomers = 0;
 
     void OnEnable()
     {
-        CustomerController.OnCustomerServed += OnCustomerLeft;
-        ShopController.OnShopBuilt += OnShopBuilt;
+        ShopController.OnShopBuilt += HandleShopBuilt;
+        CustomerController.OnCustomerServed += HandleCustomerLeft;
+        CustomerController.OnCustomerLeft += HandleCustomerLeft;
     }
 
     void OnDisable()
     {
-        CustomerController.OnCustomerServed -= OnCustomerLeft;
-        ShopController.OnShopBuilt -= OnShopBuilt;
+        ShopController.OnShopBuilt -= HandleShopBuilt;
+        CustomerController.OnCustomerServed -= HandleCustomerLeft;
+        CustomerController.OnCustomerLeft -= HandleCustomerLeft;
     }
 
-    void OnShopBuilt(ShopController shop)
+    private void HandleShopBuilt(ShopController shop)
     {
-        _targetShop = shop;
-        Debug.Log($"[CustomerSpawner] Target shop set: {shop.Data.shopName}");
+        if (!_builtShops.Contains(shop))
+            _builtShops.Add(shop);
+        Debug.Log($"[CustomerSpawner] Shop registered: {shop.Data.shopName}. Total: {_builtShops.Count}");
+    }
+
+    private void HandleCustomerLeft()
+    {
+        _activeCustomers = Mathf.Max(0, _activeCustomers - 1);
     }
 
     void Update()
     {
-        if (_targetShop == null || !_targetShop.IsBuilt) return;
+        if (_builtShops.Count == 0) return;
         if (_activeCustomers >= maxCustomers) return;
 
         _spawnTimer += Time.deltaTime;
-        if (_spawnTimer >= spawnInterval)
-        {
-            _spawnTimer = 0f;
-            SpawnCustomer();
-        }
+        if (_spawnTimer < spawnInterval) return;
+        _spawnTimer = 0f;
+
+        SpawnCustomer();
     }
 
     void SpawnCustomer()
     {
-        if (customerPrefab == null || spawnPoint == null) return;
+        // Random shop select
+        ShopController target = _builtShops[Random.Range(0, _builtShops.Count)];
 
-        GameObject obj = Instantiate(customerPrefab, spawnPoint.position, Quaternion.identity);
-        CustomerController customer = obj.GetComponent<CustomerController>();
-
-        if (customer != null)
-        {
-            customer.targetShop = _targetShop;
-            customer.Initialize();
-            _activeCustomers++;
-            Debug.Log("[CustomerSpawner] Customer spawned!");
-        }
-    }
-
-    void OnCustomerLeft()
-    {
-        _activeCustomers = Mathf.Max(0, _activeCustomers - 1);
+        GameObject go = Instantiate(customerPrefab, spawnPoint.position, Quaternion.identity);
+        CustomerController ctrl = go.GetComponent<CustomerController>();
+        ctrl.targetShop = target;
+        ctrl.Initialize();
+        _activeCustomers++;
+        Debug.Log($"[CustomerSpawner] Customer spawned → {target.Data.shopName}");
     }
 }

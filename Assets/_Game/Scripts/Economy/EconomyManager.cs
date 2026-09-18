@@ -12,6 +12,7 @@ public class EconomyManager : MonoBehaviour
   public float CurrentCoins { get; private set; }
 
   public static event Action<float> OnMoneyChanged;
+  public static event Action<float> OnMoneyAdded;
 
   void Awake()
   {
@@ -27,9 +28,9 @@ public class EconomyManager : MonoBehaviour
 
   public void AddMoney(float amount)
   {
-    // LevelManager not yet implemented (Step 35)
-    // Multiplier will be wired in Phase 6
+    if (amount <= 0f) return;
     CurrentCoins += amount;
+    OnMoneyAdded?.Invoke(amount);
     OnMoneyChanged?.Invoke(CurrentCoins);
   }
 
