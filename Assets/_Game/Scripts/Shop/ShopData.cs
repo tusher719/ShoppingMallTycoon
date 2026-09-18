@@ -1,21 +1,29 @@
 // Assets/_Game/Scripts/Shop/ShopData.cs
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewShop_Data", menuName = "MallTycoon/Shop Data")]
+[CreateAssetMenu(fileName = "ShopData", menuName = "MallTycoon/Shop Data")]
 public class ShopData : ScriptableObject
 {
-    [Header("Identity")]
+    [Header("Basic Info")]
     public string shopName;
-    public int unlockLevel = 1;
-
-    [Header("Economy")]
-    public float baseCost = 100f;
-    public float baseIncome = 20f;
-
-    [Header("Capacity")]
-    public int maxCustomers = 2;
-
-    [Header("Visuals")]
-    public GameObject shopPrefab;
+    public int unlockLevel;
     public Sprite shopIcon;
+    public GameObject shopPrefab;
+
+    [Header("Base Stats (Tier 1)")]
+    public float baseCost;
+    public float baseIncome;
+    public int maxCustomers;
+
+    [Header("Upgrade Tiers")]
+    public UpgradeTier[] upgradeTiers;
+}
+
+[System.Serializable]
+public class UpgradeTier
+{
+    public string tierName;
+    public float upgradeCost;
+    public float incomeMultiplier;
+    public int maxCustomers;
 }
