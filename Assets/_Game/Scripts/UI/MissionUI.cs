@@ -68,9 +68,9 @@ public class MissionUI : MonoBehaviour
         if (txtStars != null)
             txtStars.text = stars switch
             {
-                3 => "⭐⭐⭐",
-                2 => "⭐⭐",
-                _ => "⭐"
+                3 => "Stars: 3/3",
+                2 => "Stars: 2/3",
+                _ => "Stars: 1/3"
             };
 
         Debug.Log($"[MissionUI] Level Complete! {stars} stars");

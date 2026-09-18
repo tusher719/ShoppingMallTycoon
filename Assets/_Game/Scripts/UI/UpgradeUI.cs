@@ -34,7 +34,6 @@ public class UpgradeUI : MonoBehaviour
         ShopController.OnShopUpgraded -= HandleShopUpgraded;
     }
 
-    // Shop click হলে এই method call হবে
     public void OpenPanel(ShopController shop)
     {
         _selectedShop = shop;
@@ -52,27 +51,25 @@ public class UpgradeUI : MonoBehaviour
     {
         if (_selectedShop == null) return;
 
-        txtShopName.text = _selectedShop.Data.shopName;
+        // DisplayName দিয়ে দেখাও — Shop #1, Shop #2 etc.
+        txtShopName.text = _selectedShop.DisplayName;
         txtCurrentTier.text = $"Current: {_selectedShop.GetTierName()}";
 
         if (_selectedShop.CanUpgrade())
         {
             float cost = _selectedShop.GetUpgradeCost();
             bool canAfford = EconomyManager.Instance.CurrentCoins >= cost;
-
             txtUpgradeCost.text = $"Upgrade: ${cost}";
             btnUpgrade.interactable = canAfford;
-
-            var colors = btnUpgrade.colors;
-            colors.normalColor = canAfford
+            SetButtonColor(canAfford
                 ? new Color(0.29f, 0.56f, 0.85f)
-                : new Color(0.4f, 0.4f, 0.4f);
-            btnUpgrade.colors = colors;
+                : new Color(0.4f, 0.4f, 0.4f));
         }
         else
         {
             txtUpgradeCost.text = "Max Level!";
             btnUpgrade.interactable = false;
+            SetButtonColor(new Color(0.4f, 0.4f, 0.4f));
         }
     }
 
@@ -87,5 +84,13 @@ public class UpgradeUI : MonoBehaviour
     {
         if (_selectedShop == shop)
             RefreshUI();
+    }
+
+    private void SetButtonColor(Color color)
+    {
+        var colors = btnUpgrade.colors;
+        colors.normalColor = color;
+        colors.disabledColor = color;
+        btnUpgrade.colors = colors;
     }
 }

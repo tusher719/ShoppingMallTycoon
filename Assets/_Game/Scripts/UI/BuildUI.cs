@@ -13,7 +13,7 @@ public class BuildUI : MonoBehaviour
     [SerializeField] private ShopData shopData;
 
     [Header("Settings")]
-    [SerializeField] private int maxShops = 3;      // ← max limit
+    [SerializeField] private int maxShops = 9;
 
     private int _shopsBuilt = 0;
 
@@ -53,7 +53,12 @@ public class BuildUI : MonoBehaviour
             return;
         }
 
+        // Mall parent-এর ভেতরে spawn
+        GameObject mallParent = GameObject.Find("--- Mall ---");
         GameObject shopGO = Instantiate(shopPrefab, spawnPos, Quaternion.identity);
+        if (mallParent != null)
+            shopGO.transform.SetParent(mallParent.transform);
+
         ShopController ctrl = shopGO.GetComponent<ShopController>();
         ctrl.Build();
         Debug.Log($"[BuildUI] {shopData.shopName} built at {spawnPos}");
@@ -68,7 +73,7 @@ public class BuildUI : MonoBehaviour
 
     private void UpdateButton()
     {
-        if (txtBtnLabel == null || shopData == null) return;  // ← add করো
+        if (txtBtnLabel == null || shopData == null) return;
 
         if (_shopsBuilt >= maxShops)
         {

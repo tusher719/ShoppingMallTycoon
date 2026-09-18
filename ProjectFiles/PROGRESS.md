@@ -96,12 +96,12 @@
 | 34  | Satisfaction system                      | ⬜     | `level: add satisfaction system`   |
 | 35  | LevelManager.cs + star calc + multiplier | ⬜     | `level: add LevelManager`          |
 | 36  | Mission UI panel                         | ⬜     | `ui: add mission panel`            |
-
+  
 ---
 
 ## Phase 7 — Upgrade & UI _(not started)_
 
-| #   | Task                         | Status | Commit                                     | 
+| #   | Task                         | Status | Commit                                     |
 | --- | ---------------------------- | ------ | ------------------------------------------ |
 | 37  | Grid-based shop placement    | ⬜     | `shop: add grid placement system`          |
 | 38  | Shop upgrade logic (3 tiers) | ⬜     | `shop: add 3-tier upgrade logic`           |

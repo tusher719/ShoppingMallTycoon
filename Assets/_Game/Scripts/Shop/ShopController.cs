@@ -7,9 +7,13 @@ public class ShopController : MonoBehaviour
     [SerializeField] private ShopData shopData;
 
     private bool _isBuilt = false;
-    private int _currentTier = 0;        // 0 = Tier 1
+    private int _currentTier = 0;
     private float _incomeTimer = 0f;
     private const float INCOME_INTERVAL = 5f;
+
+    private static int _shopCounter = 0;
+    public int ShopID { get; private set; }
+    public string DisplayName { get; private set; }
 
     public ShopData Data => shopData;
     public bool IsBuilt => _isBuilt;
@@ -18,11 +22,20 @@ public class ShopController : MonoBehaviour
     public static event Action<ShopController> OnShopBuilt;
     public static event Action<ShopController> OnShopUpgraded;
 
+    void Awake()
+    {
+        _shopCounter++;
+        ShopID = _shopCounter;
+        DisplayName = $"Shop #{ShopID}";
+    }
+
     public void Build()
     {
         _isBuilt = true;
+        DisplayName = $"{shopData.shopName} #{ShopID}";
+        gameObject.name = DisplayName;
         OnShopBuilt?.Invoke(this);
-        Debug.Log($"[ShopController] Built: {shopData.shopName}");
+        Debug.Log($"[ShopController] Built: {DisplayName}");
     }
 
     void Update()
@@ -39,15 +52,13 @@ public class ShopController : MonoBehaviour
         float multiplier = GetCurrentMultiplier();
         float income = shopData.baseIncome * multiplier;
 
-        // LevelManager multiplier (Phase 6 Step 35)
         if (LevelManager.Instance != null)
             income *= LevelManager.Instance.GetIncomeMultiplier();
 
         EconomyManager.Instance.AddMoney(income);
-        Debug.Log($"[ShopController] Income: +{income} from {shopData.shopName} ({GetTierName()})");
+        Debug.Log($"[ShopController] Income: +{income} from {DisplayName} ({GetTierName()})");
     }
 
-    // --- Upgrade ---
     public bool CanUpgrade()
     {
         if (shopData.upgradeTiers == null) return false;
@@ -63,17 +74,14 @@ public class ShopController : MonoBehaviour
     public bool Upgrade()
     {
         if (!CanUpgrade()) return false;
-
         float cost = GetUpgradeCost();
         if (!EconomyManager.Instance.SpendMoney(cost)) return false;
-
         _currentTier++;
         OnShopUpgraded?.Invoke(this);
-        Debug.Log($"[ShopController] Upgraded to {GetTierName()}");
+        Debug.Log($"[ShopController] {DisplayName} upgraded to {GetTierName()}");
         return true;
     }
 
-    // --- Helpers ---
     public float GetCurrentMultiplier()
     {
         if (shopData.upgradeTiers == null || shopData.upgradeTiers.Length == 0)
