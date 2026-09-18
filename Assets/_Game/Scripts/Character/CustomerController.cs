@@ -82,16 +82,19 @@ public class CustomerController : CharacterBase
         _stateTimer -= Time.deltaTime;
         if (_stateTimer > 0) return;
 
-        // Payment
         if (targetShop != null)
-            EconomyManager.Instance.AddMoney(targetShop.Data.baseIncome);
+        {
+            // LevelManager Phase 6-এ wire হবে, এখন multiplier = 1
+            float multiplier = 1f;
+            float income = targetShop.Data.baseIncome * multiplier;
+            EconomyManager.Instance.AddMoney(income);
+            Debug.Log($"[Customer] Paid: +{income} coins");
+        }
 
         OnCustomerServed?.Invoke();
         PlayAnim("Walk");
-        SetState(CustomerState.Leaving);
-
-        // Exit দিকে হাঁটো
         MoveTo(new Vector3(0, 0, -18f));
+        SetState(CustomerState.Leaving);
     }
 
     void HandleLeaving()
