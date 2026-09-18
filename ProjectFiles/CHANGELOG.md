@@ -54,64 +54,104 @@
 
 ## [0.4.0] — Phase 4: Economy & Shop ✅ COMPLETE
 
-- `EconomyManager.cs` — AddMoney, SpendMoney, OnMoneyChanged, starting coins 500
+- `EconomyManager.cs` — AddMoney, SpendMoney, OnMoneyChanged, OnMoneyAdded, starting coins 500
 - `ShopData.cs` ScriptableObject — GroceryShop_Data (Cost:100, Income:20, MaxCustomers:2)
 - `GroceryShop` prefab — ShopBody (#4A90D9) + ShopSign (#F5A623) + ShopTrigger
 - `ShopController.cs` — Build() + OnShopBuilt event + GenerateIncome() every 5s
 - `BuildUI.cs` — BuildPanel (bottom), TxtCoins (top, #F5A623), grey+disabled when insufficient
-- Shop spawns fixed (0,0,5) — grid → Phase 7
 
 ---
 
 ## [0.5.0] — Phase 5: Customer System ✅ COMPLETE
 
-#### Step 27 — NavMesh Bake
-
-- NavMesh Surface on Floor (Humanoid, All Game Objects, Render Meshes)
-- Baked — blue walkable area on floor only ✅
-- NavMeshAgent on Customer_Normal enabled
-
-#### Step 28 — CustomerController.cs
-
-- State machine: Spawned → Walking → Shopping → Paying → Leaving
-- Extends CharacterBase
-- shoppingDuration: 5s, payingDuration: 2s
-- Payment: `baseIncome * multiplier` (multiplier=1f placeholder until Phase 6)
-- `OnCustomerServed` fires on payment
-- Exit toward (0, 0, -18) then Destroy
-
-#### Step 29 — CustomerSpawner.cs
-
-- Event-driven: `ShopController.OnShopBuilt` → `_targetShop` auto-set
-- ⚠️ No Inspector assign — BuildUI instantiates clones, not original
-- spawnInterval: 8s, maxCustomers: 5, SpawnPoint: (0, 0, -15)
-
-#### Step 30 — Full Flow Test
-
+- NavMesh baked on Level_01 (Floor, Humanoid, All Game Objects, Render Meshes)
+- `CustomerController.cs` — state machine: Spawned→Walking→Shopping→Paying→Leaving
+  - shoppingDuration: 5s, payingDuration: 2s
+  - Payment: baseIncome _ tierMultiplier _ levelMultiplier
+  - OnCustomerServed, OnCustomerWaiting, OnCustomerLeft events
+  - Exit toward (0, 0, -18) then Destroy
+- `CustomerSpawner.cs` — event-driven, random shop selection from built shops list
+  - spawnInterval: 8s, maxCustomers: 5, SpawnPoint: (0, 0, -15)
 - Windows ✅ Android ✅
-- Build → Spawn → Walk → Shop → Pay → Exit — all working
-- Known: SpawnPoint wall-এর কাছে — Phase 7-এ adjust
 
-#### Step 31 — Payment wired to EconomyManager
-
-- `[Customer] Paid: +20 coins` ✅
-- Multiplier placeholder (1f) — Phase 6 Step 35-এ wire হবে
-
-**Lessons:**
-
-- CustomerSpawner Target Shop — Inspector assign না, event দিয়ে করতে হয়
-- BuildUI Instantiate করে clone, original GroceryShop না
-- `ShopController.Data` property ব্যবহার করো, `.shopData` direct না
+**Lessons:** CustomerSpawner Target Shop — Inspector assign না, event দিয়ে করতে হয়. BuildUI Instantiate করে clone, original GroceryShop না. `ShopController.Data` property ব্যবহার করো. Orthographic camera-তে OnMouseDown কাজ করে না → Physics.RaycastAll.
 
 ---
 
-## [0.6.0] — Phase 6: Objectives & Level _(next)_
+## [0.6.0] — Phase 6: Objectives & Level ✅ COMPLETE
 
-- LevelObjectiveManager, Satisfaction system, LevelManager, Mission UI
+### Step 32 — LevelObjectiveManager.cs
 
-## [0.7.0] — Phase 7: Upgrade & UI _(not started)_
+- Tracks: shopsBuilt, customersServed, moneyEarned
+- Targets: 3 shops, 20 customers, $500 earned
+- Events: OnShopsProgress, OnCustomersProgress, OnMoneyProgress, OnAllObjectivesComplete
 
-- Grid placement, dynamic shop cost, 3-tier upgrade, full HUD, gem system
+### Step 33 — Money Earned Tracking
+
+- EconomyManager: OnMoneyAdded event (earned amount, not balance)
+- LevelObjectiveManager subscribes to OnMoneyAdded
+
+### Step 34 — SatisfactionManager.cs
+
+- Base: 70, High: 80, Low: 30
+- +1.5 per customer served, -2 per customer waiting
+- CustomerController: OnCustomerWaiting (on shop arrival), OnCustomerLeft (before Destroy)
+
+### Step 35 — LevelManager.cs
+
+- Listens: OnAllObjectivesComplete → CalculateStars() → OnLevelComplete
+- Star calc: satisfaction >= 80 → 3★, >= 50 → 2★, else 1★
+- Saves: save_stars_X, save_level
+- GetIncomeMultiplier(): Mathf.Pow(1.2f, currentLevelIndex)
+- CustomerController multiplier wired
+
+### Step 36 — MissionUI + LevelCompletePanel
+
+- MissionPanel (Top Right): Shops X/3, Customers X/20, Earned $X/500
+- LevelCompletePanel (Center): "Level Complete!" + "Stars: X/3"
+- TMP emoji not supported → plain text only
+
+---
+
+## [0.7.0] — Phase 7: Upgrade & UI (partial)
+
+### Step 37 — Grid-based Shop Placement ✅
+
+- `GridManager.cs` — 3×3 grid, tileSize 5, origin (-5, 0, 0)
+- TryGetNextTile() — row-major, occupancy tracked
+- BuildUI: spawns in --- Mall --- parent, max 9 shops
+- CustomerSpawner: random shop selection from \_builtShops list
+
+**commit:** `feat: add grid-based shop placement and multi-shop customer routing`
+
+### Step 38 — Shop Upgrade Logic (3-tier) ✅
+
+- ShopData: UpgradeTier[] (tierName, upgradeCost, incomeMultiplier, maxCustomers)
+- GroceryShop_Data tiers: Tier1(×1.0/$0), Tier2(×1.5/$150), Tier3(×2.25/$300)
+- ShopController: Upgrade(), CanUpgrade(), GetUpgradeCost(), GetCurrentMultiplier(), GetTierName(), GetMaxCustomers()
+- ShopController: unique ShopID + DisplayName ("Grocery Shop #1")
+- OnShopUpgraded event
+
+**commit:** `feat: add 3-tier shop upgrade logic with ScriptableObject tiers`
+
+### Step 38B — Upgrade UI ✅
+
+- `UpgradeUI.cs` — OpenPanel(shop), ClosePanel(), RefreshUI()
+- Shows: DisplayName, CurrentTier, Cost: -$X, Income: $X → $Y/5s (or Max Level)
+- `ShopClickHandler.cs` — Physics.RaycastAll on ShopBody collider
+- Main Camera: PhysicsRaycaster component added
+- FindFirstObjectByType(FindObjectsInactive.Include) for inactive panel
+
+**commit:** `feat: add shop upgrade UI with 3-tier system and shop click handler`
+
+### Step 39 — Full HUD ✅
+
+- `HUDManager.cs` — TopBar left box: Coins, +X/min, Shops: X, Customers: X
+- Income rate: recalculates every 1s from all built shops' current tier
+- OnShopUpgraded → rate updates instantly
+- CustomerSpawner notifies HUDManager.OnCustomerSpawned()
+
+---
 
 ## [0.7B.0] — Phase 7B: Audio & FX _(not started)_
 

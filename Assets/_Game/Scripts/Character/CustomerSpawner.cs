@@ -63,5 +63,8 @@ public class CustomerSpawner : MonoBehaviour
         ctrl.Initialize();
         _activeCustomers++;
         Debug.Log($"[CustomerSpawner] Customer spawned → {target.Data.shopName}");
+
+        HUDManager hud = FindFirstObjectByType<HUDManager>();
+        if (hud != null) hud.OnCustomerSpawned();
     }
 }

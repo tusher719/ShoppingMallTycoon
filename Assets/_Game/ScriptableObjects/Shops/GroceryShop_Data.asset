@@ -14,8 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shopName: Grocery Shop
   unlockLevel: 1
+  shopIcon: {fileID: 0}
+  shopPrefab: {fileID: 5643823983421877726, guid: 310b8f590cce9b14bb63d47df06c4c9e, type: 3}
   baseCost: 100
   baseIncome: 20
   maxCustomers: 2
-  shopPrefab: {fileID: 5643823983421877726, guid: 310b8f590cce9b14bb63d47df06c4c9e, type: 3}
-  shopIcon: {fileID: 0}
+  upgradeTiers:
+  - tierName: Tier 1
+    upgradeCost: 0
+    incomeMultiplier: 1
+    maxCustomers: 2
+  - tierName: Tier 2
+    upgradeCost: 150
+    incomeMultiplier: 1.5
+    maxCustomers: 4
+  - tierName: Tier 3
+    upgradeCost: 300
+    incomeMultiplier: 2.25
+    maxCustomers: 6

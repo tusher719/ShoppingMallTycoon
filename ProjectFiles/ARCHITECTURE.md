@@ -11,7 +11,7 @@
   EconomyMgr  LevelMgr   SaveMgr  AudioMgr
        │          │                    │
   ShopCtrl   ObjectiveMgr          FXManager
-       │
+       │       SatisfactionMgr
   CustomerSpawner
        │
   CustomerController (per instance)
@@ -23,7 +23,7 @@
 
 ### 1. Singleton Pattern
 
-`GameManager`, `EconomyManager`, `CameraManager`, `AudioManager`, `FXManager`, `SaveManager`, `UIManager` — all Singletons.
+`GameManager`, `EconomyManager`, `CameraManager`, `AudioManager`, `FXManager`, `SaveManager`, `UIManager`, `GridManager`, `LevelObjectiveManager`, `SatisfactionManager`, `LevelManager` — all Singletons.
 
 ```csharp
 public static T Instance { get; private set; }
@@ -71,16 +71,13 @@ public void PlayLevelComplete(float duration = 5f, Action onComplete = null) { .
 ### 6. Income Formula
 
 ```csharp
-// LevelManager wired in Phase 6 (Step 35)
-// Placeholder multiplier = 1f until then
 float multiplier = Mathf.Pow(1.2f, LevelManager.Instance.CurrentLevelIndex);
-float income = baseIncome * multiplier;
+float income = baseIncome * tierMultiplier * levelMultiplier;
 ```
 
-### 7. Dynamic Shop Cost (Phase 7)
+### 7. Dynamic Shop Cost (Phase 7 — pending)
 
 ```csharp
-// প্রতিটা নতুন shop build করলে দাম বাড়বে
 float cost = baseCost * Mathf.Pow(1.5f, shopsBuilt);
 ```
 
@@ -117,9 +114,20 @@ Scale With Screen Size | 1080×1920 | Match: 0.5
 
 ```csharp
 public static event Action<float> OnMoneyChanged;
+public static event Action<float> OnMoneyAdded;
 public static event Action OnCustomerServed;
+public static event Action OnCustomerWaiting;
+public static event Action OnCustomerLeft;
 public static event Action OnLevelComplete;
 public static event Action<ShopController> OnShopBuilt;
+public static event Action<ShopController> OnShopUpgraded;
+public static event Action<int, int> OnShopsProgress;
+public static event Action<int, int> OnCustomersProgress;
+public static event Action<float, float> OnMoneyProgress;
+public static event Action OnAllObjectivesComplete;
+public static event Action<float> OnSatisfactionChanged;
+public static event Action OnHighSatisfaction;
+public static event Action OnLowSatisfaction;
 ```
 
 ### 12. Save Key Convention
@@ -160,12 +168,47 @@ SceneManager.LoadScene("Onboarding");
 | FX Prefab        | FX_Name         | `FX_CoinEarn`          |
 | Audio clip       | type_name       | `sfx_coin`, `bgm_mall` |
 
+### 15. Shop Unique ID
+
+```csharp
+private static int _shopCounter = 0;
+public int ShopID { get; private set; }
+public string DisplayName { get; private set; }
+// DisplayName = $"{shopData.shopName} #{ShopID}"
+// gameObject.name = DisplayName on Build()
+```
+
+### 16. Grid System
+
+```csharp
+GridManager.Instance.TryGetNextTile(out Vector3 worldPos);
+// Grid: 3×3, tileSize 5, origin (-5, 0, 0)
+// Max shops = columns × rows = 9
+```
+
+### 17. Shop Click Detection
+
+```csharp
+// ShopClickHandler on ShopBody
+// Physics.RaycastAll — handles overlapping colliders
+// Main Camera needs PhysicsRaycaster component
+// Finds UpgradeUI with FindFirstObjectByType(FindObjectsInactive.Include)
+```
+
+### 18. Satisfaction System
+
+```
+Satisfaction = BaseSatisfaction(70) - WaitingPenalty(2/customer) + ServedBonus(1.5/customer)
+> 80% → OnHighSatisfaction (spawn rate boost — pending)
+< 30% → OnLowSatisfaction (customers leave — pending)
+```
+
 ---
 
 ## 🎥 Camera Architecture (Cinemachine 3.x)
 
 ```
-Main Camera
+Main Camera (+ PhysicsRaycaster)
 └── CinemachineBrain (Channel Mask: Default only)
     ├── VC_Gameplay      (Output: Default, always live)
     ├── VC_ShopUnlock    (Output: Channel02)
@@ -188,7 +231,8 @@ Main Camera
 
 ```csharp
 public static event Action<float> OnMoneyChanged;
-public void AddMoney(float amount)    // fires OnMoneyChanged
+public static event Action<float> OnMoneyAdded;   // earned amount (not balance)
+public void AddMoney(float amount)    // fires both events
 public bool SpendMoney(float amount)  // returns false if insufficient
 // Starting coins: 500
 ```
@@ -198,27 +242,43 @@ public bool SpendMoney(float amount)  // returns false if insufficient
 ```
 [CreateAssetMenu] → MallTycoon/Shop Data
 Fields: shopName, unlockLevel, baseCost, baseIncome, maxCustomers, shopPrefab, shopIcon
-Asset: GroceryShop_Data (Cost:100, Income:20/5s, MaxCustomers:2)
+       upgradeTiers: UpgradeTier[] (tierName, upgradeCost, incomeMultiplier, maxCustomers)
+Asset: GroceryShop_Data
+  Base: Cost:100, Income:20/5s, MaxCustomers:2
+  Tier 1: multiplier 1.0, maxCustomers 2, upgradeCost 0
+  Tier 2: multiplier 1.5, maxCustomers 4, upgradeCost 150
+  Tier 3: multiplier 2.25, maxCustomers 6, upgradeCost 300
 ⚠️ Always use: public ShopData Data => shopData; — never expose field directly
 ```
 
 ## 🏗️ ShopController ✅
 
 ```csharp
-public void Build()           // isBuilt=true, fires OnShopBuilt
-void GenerateIncome()         // every 5s → EconomyManager.AddMoney
+public void Build()           // isBuilt=true, sets DisplayName, fires OnShopBuilt
+void GenerateIncome()         // every 5s → baseIncome * tierMultiplier * levelMultiplier
+public bool Upgrade()         // spends money, _currentTier++, fires OnShopUpgraded
+public bool CanUpgrade()
+public float GetUpgradeCost()
+public float GetCurrentMultiplier()
+public string GetTierName()
+public int GetMaxCustomers()
+public int ShopID             // unique, static counter
+public string DisplayName     // "Grocery Shop #1"
 public static event Action<ShopController> OnShopBuilt;
-public ShopData Data => shopData;  // always use this property
-public bool IsBuilt => isBuilt;
+public static event Action<ShopController> OnShopUpgraded;
+public ShopData Data => shopData;
+public bool IsBuilt => _isBuilt;
+public int CurrentTier => _currentTier;
 ```
 
 ## 🖥️ BuildUI ✅
 
 ```
-BuildPanel — Bottom Center, 400×120, #1A1A2E
-BtnBuild   — #4A90D9, grey+disabled when coins < baseCost
-TxtCoins   — Top Center, #F5A623, updates via OnMoneyChanged
-Shop spawns at (0,0,5) fixed — grid placement Phase 7
+BuildPanel — Bottom Center, #1A1A2E
+BtnBuild   — #4A90D9, grey+disabled when coins < baseCost, "Max" when grid full
+TxtBtnLabel — updates dynamically
+Max Shops: 9 (GridManager 3×3)
+Shops spawn in --- Mall --- parent via GridManager.TryGetNextTile()
 ```
 
 ## 🧍 CustomerController ✅
@@ -226,41 +286,118 @@ Shop spawns at (0,0,5) fixed — grid placement Phase 7
 ```csharp
 // States: Spawned → Walking → Shopping → Paying → Leaving
 // shoppingDuration: 5s, payingDuration: 2s
-// Payment: baseIncome * multiplier (multiplier=1f until Phase 6 Step 35)
+// Payment: baseIncome * tierMultiplier * levelMultiplier
+// OnCustomerWaiting fires on shop arrival
+// OnCustomerLeft fires before Destroy
 // Exit target: (0, 0, -18) then Destroy
 public ShopController targetShop;
 public static event Action OnCustomerServed;
+public static event Action OnCustomerWaiting;
+public static event Action OnCustomerLeft;
 ```
 
 ## 👥 CustomerSpawner ✅
 
 ```csharp
-// ⚠️ Event-driven: ShopController.OnShopBuilt → sets _targetShop automatically
-// ⚠️ Never assign Target Shop in Inspector — BuildUI instantiates clones, not original
+// Event-driven: ShopController.OnShopBuilt → adds to _builtShops list
+// Random shop selection from _builtShops on each spawn
 // spawnInterval: 8s, maxCustomers: 5
 // SpawnPoint position: (0, 0, -15)
+// Notifies HUDManager.OnCustomerSpawned()
+// ⚠️ Never assign Target Shop in Inspector
 ```
 
----
+## 🎯 LevelObjectiveManager ✅
 
-## 🎨 HUD Plan (Phase 7 — Step 39)
-
-```
-TopBar:
-├── 💰 Coins + per-min income rate    e.g. "💰 1,250  (+$48/min)"
-├── 📊 Level progress bar + % + goal  e.g. "67% (2/3 goals)"
-└── 💎 Gems                           e.g. "💎 12"
-
-BottomBar:
-├── 🏪 Shop count                     e.g. "Shops: 3"
-├── 👥 Active customer count          e.g. "Customers: 7"
-└── [Build] [Upgrade] [Missions] buttons
-
-MissionPanel: task list + reward + per-task progress bar
-LevelCompletePanel: ⭐⭐⭐ + coins earned + next level
+```csharp
+// Tracks: shopsBuilt, customersServed, moneyEarned
+// Targets (Inspector): 3 shops, 20 customers, $500 earned
+// Events: OnShopsProgress, OnCustomersProgress, OnMoneyProgress, OnAllObjectivesComplete
+// Listens: ShopController.OnShopBuilt, CustomerController.OnCustomerServed, EconomyManager.OnMoneyAdded
 ```
 
----
+## 😊 SatisfactionManager ✅
+
+```csharp
+// Base: 70, High threshold: 80, Low threshold: 30
+// +1.5 per customer served, -2 per customer waiting
+// Events: OnSatisfactionChanged, OnHighSatisfaction, OnLowSatisfaction
+```
+
+## ⭐ LevelManager ✅
+
+```csharp
+// Listens: LevelObjectiveManager.OnAllObjectivesComplete
+// Star calc: satisfaction >= 80 → 3★, >= 50 → 2★, else 1★
+// Saves: save_stars_X, save_level
+// GetIncomeMultiplier(): Mathf.Pow(1.2f, currentLevelIndex)
+// Event: OnLevelComplete(int stars)
+```
+
+## 🗺️ GridManager ✅
+
+```csharp
+// 3×3 grid, tileSize 5, origin (-5, 0, 0)
+// TryGetNextTile(out Vector3 worldPos) — row-major order
+// MaxShops = 9
+```
+
+## 🖥️ MissionUI ✅
+
+```csharp
+// Shows: Shops X/3, Customers X/20, Earned $X/500
+// LevelCompletePanel: activates on OnLevelComplete, shows Stars X/3
+// References: TxtShops, TxtCustomers, TxtMoney, LevelCompletePanel, TxtStars
+```
+
+## 🖥️ UpgradeUI ✅
+
+```csharp
+// Opens on ShopClickHandler → ShopBody click (Physics.RaycastAll)
+// Shows: DisplayName, CurrentTier, Cost: -$X, Income: $X → $Y/5s
+// Max Level: shows current income only
+// BtnUpgrade: disabled when can't afford or max tier
+```
+
+## 🖥️ HUDManager ✅
+
+```csharp
+// TopBar (left box): Coins, +X/min, Shops: X, Customers: X
+// Income rate: recalculates every 1s from all built shops
+// Upgrade event → rate updates instantly
+// OnCustomerSpawned() called by CustomerSpawner
+```
+
+## 🖥️ UI Architecture (Canvas)
+
+```
+Canvas (Screen Space - Overlay, 1080×1920, match 0.5)
+├── TutorialPanel ✅
+├── BuildPanel ✅
+├── TxtCoins (disabled — HUD handles this) ✅
+├── MissionPanel ✅ (Top Right)
+│   ├── TxtTitle
+│   └── Content (Vertical Layout Group)
+│       ├── TxtShops
+│       ├── TxtCustomers
+│       └── TxtMoney
+├── UpgradePanel ✅ (Center)
+│   ├── TxtShopName
+│   ├── TxtCurrentTier
+│   ├── TxtUpgradeCost
+│   ├── TxtIncomeInfo
+│   ├── BtnUpgrade
+│   └── BtnClose
+├── LevelCompletePanel ✅ (Center, starts inactive)
+│   ├── TxtTitle
+│   └── TxtStars
+└── HUDPanel ✅
+    └── TopBar (Top Left box)
+        ├── TxtCoinsHUD
+        ├── TxtIncomeRate
+        ├── TxtShopCount
+        └── TxtCustomerCount
+```
 
 ## 🧍 Character Architecture
 
@@ -272,20 +409,15 @@ CharacterBase (abstract)
 └── StaffController (Phase 2+, not MVP)
 ```
 
-## 🔊 Audio Architecture
+## 🔊 Audio Architecture (Phase 7B — pending)
 
 ```
 AudioManager (DontDestroyOnLoad)
 ├── BGM AudioSource → PlayBGM(), StopBGM(), FadeBGM()
 └── SFX AudioSource → PlaySFX(string key) → PlayOneShot()
-
-Audio/
-├── BGM/ bgm_menu.mp3, bgm_mall.mp3
-└── SFX/ sfx_click, sfx_coin, sfx_customer_arrive,
-         sfx_customer_pay, sfx_shop_unlock, sfx_level_complete
 ```
 
-## ✨ FX Architecture
+## ✨ FX Architecture (Phase 7B — pending)
 
 ```
 FXManager (Singleton) — Object Pool per FX type
@@ -293,27 +425,6 @@ FXManager (Singleton) — Object Pool per FX type
 ├── Pool: FX_ShopUnlock   (size: 3)
 ├── Pool: FX_LevelComplete (size: 1)
 └── Pool: FX_GemCollect   (size: 5)
-
-Trigger points:
-- EconomyManager.AddMoney()    → FX_CoinEarn
-- ShopController.Build()       → FX_ShopUnlock
-- LevelManager.CompleteLevel() → FX_LevelComplete
-- Milestone reached            → FX_GemCollect
-```
-
-## 📱 UI Architecture
-
-```
-Canvas (Screen Space - Overlay)
-└── Canvas Scaler: 1080×1920, match 0.5
-    ├── SafeArea (SafeAreaHandler.cs)
-    │   ├── TopBar (Phase 7)
-    │   ├── BottomBar (Phase 7)
-    │   ├── BuildPanel ✅
-    │   ├── UpgradePanel (Phase 7)
-    │   ├── MissionPanel (Phase 6)
-    │   └── LevelCompletePanel (Phase 6)
-    └── TutorialPanel ✅
 ```
 
 ## 💾 Save Architecture
@@ -332,4 +443,9 @@ Future: REST API → Remote DB
 - Materials: URP/Lit or URP/Simple Lit only
 - CustomerSpawner Target Shop — event-driven, never Inspector assign
 - ShopController.Data property — never .shopData direct
-- BuildUI instantiates shop clones — original never gets Build() called
+- BuildUI instantiates shop clones — use event to track, not original prefab
+- Orthographic camera: OnMouseDown broken → use Physics.RaycastAll in Update()
+- FindFirstObjectByType(FindObjectsInactive.Include) — finds inactive panels
+- Shop clone parent: GameObject.Find("--- Mall ---") for hierarchy organization
+- \_shopCounter is static — resets only on domain reload (not scene reload)
+- TMP emoji (Unicode > U+FFFF) not supported by LiberationSans SDF — use plain text

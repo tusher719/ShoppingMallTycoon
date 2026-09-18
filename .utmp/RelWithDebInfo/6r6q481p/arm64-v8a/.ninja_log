@@ -1,19 +1,19 @@
 # ninja log v5
-38	2422	8113313210240939	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	ae3ade2ba4ec9e31
-22	2276	8113313208768218	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	acf21a30d7c396ff
-27	2300	8113313208988088	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	de311bf6c63d1006
-35	2283	8113313208837982	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	6902fbff649fe9e
-19	2180	8113313207731290	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	47fa819f00d11a28
-30	2261	8113313208618720	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	1c066de5809e233a
-33	2936	8113313215367906	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	7e211728fc7d284b
-2946	3065	8113313216693477	D:/Unity Game/ShoppingMallTycoon/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/6r6q481p/obj/arm64-v8a/libgame.so	2181c5f0d2148faf
-25	2945	8113313215447647	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	4fa42799ef98af07
 24	2974	8113794308642370	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	acf21a30d7c396ff
-20	2978	8113794308622445	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	47fa819f00d11a28
-34	2984	8113794308652341	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	1c066de5809e233a
+122	3166	8113794310581342	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	ae3ade2ba4ec9e31
 97	3006	8113794308881572	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	6902fbff649fe9e
 27	3021	8113794309140700	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	de311bf6c63d1006
-122	3166	8113794310581342	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	ae3ade2ba4ec9e31
+20	2978	8113794308622445	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	47fa819f00d11a28
+34	2984	8113794308652341	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	1c066de5809e233a
 32	3471	8113794313606694	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	7e211728fc7d284b
 29	3671	8113794315609994	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	4fa42799ef98af07
 3671	3800	8113794316940648	D:/Unity Game/ShoppingMallTycoon/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/6r6q481p/obj/arm64-v8a/libgame.so	2181c5f0d2148faf
+47	2654	8114517880824743	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	47fa819f00d11a28
+54	2749	8114517881816813	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	1c066de5809e233a
+49	2780	8114517882085890	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	6902fbff649fe9e
+44	2784	8114517882135736	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	de311bf6c63d1006
+56	2890	8114517883207745	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	ae3ade2ba4ec9e31
+37	3272	8114517886966668	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	acf21a30d7c396ff
+42	3444	8114517888718481	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	4fa42799ef98af07
+51	3534	8114517889627280	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	7e211728fc7d284b
+3534	3676	8114517891100161	D:/Unity Game/ShoppingMallTycoon/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/6r6q481p/obj/arm64-v8a/libgame.so	2181c5f0d2148faf

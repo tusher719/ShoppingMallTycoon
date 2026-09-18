@@ -5,7 +5,7 @@
 - **Unity:** 6000.0.47f1 (URP)
 - **Platform:** Android (primary), PC (secondary)
 - **Repo:** https://github.com/tusher719/ShoppingMallTycoon
-- **Current Phase:** Phase 6 — Objectives & Level (Step 32 next)
+- **Current Phase:** Phase 7 — Upgrade & UI (Step 40 next)
 
 ---
 
@@ -87,30 +87,30 @@
 
 ---
 
-## Phase 6 — Objectives & Level _(next)_
+## Phase 6 — Objectives & Level ✅ COMPLETE
 
-| #   | Task                                     | Status | Commit                             |
-| --- | ---------------------------------------- | ------ | ---------------------------------- |
-| 32  | LevelObjectiveManager.cs                 | ⬜     | `level: add LevelObjectiveManager` |
-| 33  | Track: shops, customers, money           | ⬜     | `level: track core objectives`     |
-| 34  | Satisfaction system                      | ⬜     | `level: add satisfaction system`   |
-| 35  | LevelManager.cs + star calc + multiplier | ⬜     | `level: add LevelManager`          |
-| 36  | Mission UI panel                         | ⬜     | `ui: add mission panel`            |
-  
+| #   | Task                                     | Status | Commit                                     |
+| --- | ---------------------------------------- | ------ | ------------------------------------------ |
+| 32  | LevelObjectiveManager.cs                 | ✅     | `level: add LevelObjectiveManager`         |
+| 33  | Track: shops, customers, money           | ✅     | `level: track core objectives`             |
+| 34  | SatisfactionManager.cs                   | ✅     | `level: add satisfaction system`           |
+| 35  | LevelManager.cs + star calc + multiplier | ✅     | `level: add LevelManager`                  |
+| 36  | MissionUI + LevelCompletePanel           | ✅     | `ui: add mission panel and level complete` |
+
 ---
 
-## Phase 7 — Upgrade & UI _(not started)_
+## Phase 7 — Upgrade & UI _(in progress)_
 
-| #   | Task                         | Status | Commit                                     |
-| --- | ---------------------------- | ------ | ------------------------------------------ |
-| 37  | Grid-based shop placement    | ⬜     | `shop: add grid placement system`          |
-| 38  | Shop upgrade logic (3 tiers) | ⬜     | `shop: add 3-tier upgrade logic`           |
-| 38B | Shop upgrade UI              | ⬜     | `ui: add shop upgrade panel`               |
-| 39  | Full HUD                     | ⬜     | `ui: add full HUD`                         |
-| 40  | Gem system                   | ⬜     | `economy: add gem system`                  |
-| 41  | Mission panel                | ⬜     | `ui: add mission panel`                    |
-| 42  | Level complete panel         | ⬜     | `ui: add level complete panel`             |
-| 43  | Cinematic on shop unlock     | ⬜     | `camera: trigger cinematic on shop unlock` |
+| #   | Task                             | Status | Commit                                                                   |
+| --- | -------------------------------- | ------ | ------------------------------------------------------------------------ |
+| 37  | Grid-based shop placement        | ✅     | `feat: add grid-based shop placement and multi-shop customer routing`    |
+| 38  | Shop upgrade logic (3 tiers)     | ✅     | `feat: add 3-tier shop upgrade logic with ScriptableObject tiers`        |
+| 38B | Shop upgrade UI                  | ✅     | `feat: add shop upgrade UI with 3-tier system and shop click handler`    |
+| 39  | Full HUD                         | ✅     | `feat: add full HUD with coins, income rate, shop count, customer count` |
+| 40  | Gem system                       | ⬜     | `economy: add gem system`                                                |
+| 41  | Mission panel (advanced)         | ⬜     | `ui: add advanced mission panel`                                         |
+| 42  | Level complete panel + Level Map | ⬜     | `ui: add level complete panel and level map`                             |
+| 43  | Cinematic on shop unlock         | ⬜     | `camera: trigger cinematic on shop unlock`                               |
 
 ---
 
@@ -157,35 +157,71 @@
 
 ## 📌 Current Step
 
-**→ Step 32: LevelObjectiveManager.cs (Phase 6 start)**
+**→ Step 40: Gem System**
 
 ---
 
 ## 🐛 Known Issues
 
 - SpawnPoint wall-এর কাছে — Phase 7-এ adjust করবো
-- Shop একই position-এ spawn হয় — Phase 7 grid system-এ fix
 - Step 15 (animation clips) skipped — real model আসলে করবো
-- NavMeshAgent on Customer_Normal disabled until Step 27 ✅ fixed
+- Canvas Scaler এখনো Constant Pixel Size — Phase 8 Step 53-এ fix
 
 ## 💡 Decisions Made
 
-- Grid tile: 5×5 units
-- Shop spawn: fixed (0,0,5) until Phase 7
+- Grid tile: 5×5 units, 3×3 grid, origin (-5, 0, 0)
+- Shop spawn: GridManager.TryGetNextTile(), parent: --- Mall ---
 - Mall Level 1: 40×40, 8-unit entrance gap South (X -4 to +4)
-- Camera: Isometric Ortho + Cinemachine 3.x
+- Camera: Isometric Ortho + Cinemachine 3.x + PhysicsRaycaster
 - Input: New Input System Package
 - No player control — management game only
 - MVP: Level 1–3, single shop type, no staff
-- Income multiplier: `Mathf.Pow(1.2f, levelIndex)` — Phase 6 Step 35
+- Income multiplier: `Mathf.Pow(1.2f, levelIndex)` — wired
 - Income interval: 5s per shop
-- Dynamic shop cost: `baseCost * Mathf.Pow(1.5f, shopsBuilt)` — Phase 7
-- CustomerSpawner: event-driven via OnShopBuilt — never Inspector assign
+- Dynamic shop cost: `baseCost * Mathf.Pow(1.5f, shopsBuilt)` — Phase 7 pending
+- CustomerSpawner: random shop selection from built list
 - ShopController.Data property — never .shopData direct
 - Button disabled: grey (#666) + white text
-- HUD: number-driven, per-min income, progress %, gems, shop+customer count
-- Gem system: earn milestones/missions, spend upgrade/speed, tap FX to collect
+- Shop unique ID: static counter, DisplayName = "ShopName #ID"
+- Upgrade tiers: Tier1(×1.0/$0), Tier2(×1.5/$150), Tier3(×2.25/$300)
+- HUD: TopBar left box (Coins, +rate, Shops, Customers)
+- Income rate: per-shop calculation, updates every 1s + on upgrade
+- TMP emoji not supported by LiberationSans SDF — use plain text
+- LevelComplete: satisfaction >= 80 → 3★, >= 50 → 2★, else 1★
+- Level Map: planned for Step 42 (Current/Next/Upcoming/Coming Soon)
 - Audio: singleton BGM loop + SFX PlayOneShot
 - FX: FXManager object pool
 - Save Phase 1: PlayerPrefs | Phase 2: JSON | Future: Remote DB
 - Android: `com.tusher.shoppingmalltycoon`, IL2CPP, ARM64
+
+## 🧩 Script Status
+
+| Script                   | Status |
+| ------------------------ | ------ |
+| EconomyManager.cs        | ✅     |
+| CameraManager.cs         | ✅     |
+| CameraInputHandler.cs    | ✅     |
+| CharacterBase.cs         | ✅     |
+| CustomerController.cs    | ✅     |
+| CustomerSpawner.cs       | ✅     |
+| ShopController.cs        | ✅     |
+| ShopData.cs              | ✅     |
+| ShopClickHandler.cs      | ✅     |
+| BuildUI.cs               | ✅     |
+| UpgradeUI.cs             | ✅     |
+| MissionUI.cs             | ✅     |
+| HUDManager.cs            | ✅     |
+| GridManager.cs           | ✅     |
+| LevelObjectiveManager.cs | ✅     |
+| SatisfactionManager.cs   | ✅     |
+| LevelManager.cs          | ✅     |
+| OnboardingManager.cs     | ✅     |
+| LoadingManager.cs        | ✅     |
+| TutorialManager.cs       | ✅     |
+| UIManager.cs             | ⬜     |
+| AudioManager.cs          | ⬜     |
+| FXManager.cs             | ⬜     |
+| SaveManager.cs           | ⬜     |
+| SafeAreaHandler.cs       | ⬜     |
+| GameManager.cs           | ⬜     |
+| ResetManager.cs          | ⬜     |

@@ -29,6 +29,7 @@
 - CameraInputHandler: drag pan + pinch zoom (PC ✅ Android ✅)
 - Pan bounds: X(-15,15), Z(-15,15) | Zoom: OrthographicSize(5,20)
 - Mall floor 40×40, walls, 8-unit entrance gap South (X -4 to +4)
+- Main Camera: PhysicsRaycaster component added
 
 ## ✅ Phase 2 — Character System ✅ DONE
 
@@ -45,46 +46,76 @@
 
 ## ✅ Phase 4 — Economy & Shop ✅ DONE
 
-- `EconomyManager`: AddMoney, SpendMoney, OnMoneyChanged, starting coins 500
-- `ShopData` SO: GroceryShop_Data (Cost:100, Income:20/5s, MaxCustomers:2)
-- `ShopController`: Build() + OnShopBuilt event + GenerateIncome() every 5s
-  - ⚠️ `public ShopData Data => shopData;` — always use property, never .shopData
-- `BuildUI`: BuildPanel + TxtCoins, grey+disabled when insufficient
-- Shop fixed at (0,0,5) — grid → Phase 7
+- `EconomyManager`: AddMoney, SpendMoney, OnMoneyChanged, OnMoneyAdded, starting coins 500
+- `ShopData` SO: GroceryShop_Data
+  - Base: Cost:100, Income:20/5s, MaxCustomers:2
+  - Tier 1: ×1.0, $0 upgrade, 2 customers
+  - Tier 2: ×1.5, $150 upgrade, 4 customers
+  - Tier 3: ×2.25, $300 upgrade, 6 customers
+- `ShopController`: Build() + OnShopBuilt + GenerateIncome() every 5s
+  - Upgrade(), CanUpgrade(), GetUpgradeCost(), GetCurrentMultiplier()
+  - Unique ShopID + DisplayName ("Grocery Shop #1")
+  - ⚠️ `public ShopData Data => shopData;` — always use property
+- `BuildUI`: BuildPanel + max 9 shops (GridManager 3×3)
+- `GridManager`: 3×3, tileSize 5, origin (-5, 0, 0)
+- Shops spawn in `--- Mall ---` parent
 
 ## ✅ Phase 5 — Customer System ✅ DONE
 
 - NavMesh baked on Level_01 (Floor, Humanoid)
 - `CustomerController`: Spawned→Walking→Shopping→Paying→Leaving
   - shoppingDuration: 5s, payingDuration: 2s
-  - Payment: `baseIncome * multiplier` (multiplier=1f until Phase 6 Step 35)
-  - `OnCustomerServed` event on payment
+  - Payment: baseIncome _ tierMultiplier _ levelMultiplier
+  - OnCustomerServed, OnCustomerWaiting, OnCustomerLeft events
   - Exit: MoveTo(0,0,-18) then Destroy
 - `CustomerSpawner`: event-driven via `ShopController.OnShopBuilt`
-  - ⚠️ Never assign Target Shop in Inspector — event auto-sets `_targetShop`
+  - Random shop selection from \_builtShops list
   - spawnInterval: 8s, maxCustomers: 5, SpawnPoint: (0,0,-15)
+  - Notifies HUDManager.OnCustomerSpawned()
+  - ⚠️ Never assign Target Shop in Inspector
 - Windows ✅ Android ✅
+
+## ✅ Phase 6 — Objectives & Level ✅ DONE
+
+- `LevelObjectiveManager`: tracks shops(3), customers(20), money($500)
+  - Events: OnShopsProgress, OnCustomersProgress, OnMoneyProgress, OnAllObjectivesComplete
+- `SatisfactionManager`: base 70, high 80, low 30
+  - +1.5 per served, -2 per waiting
+  - Events: OnSatisfactionChanged, OnHighSatisfaction, OnLowSatisfaction
+- `LevelManager`: star calc (≥80%→3★, ≥50%→2★, else 1★)
+  - GetIncomeMultiplier(): Mathf.Pow(1.2f, currentLevelIndex)
+  - Saves: save_stars_X, save_level
+  - Event: OnLevelComplete(int stars)
+- `MissionUI`: Shops X/3, Customers X/20, Earned $X/500 (Top Right panel)
+- `LevelCompletePanel`: "Level Complete!" + "Stars: X/3" (Center, starts inactive)
+
+## ✅ Phase 7 (partial) — Steps 37–39 DONE
+
+- `GridManager`: 3×3 grid shop placement
+- Shop upgrade: 3-tier system via ScriptableObject
+- `ShopClickHandler`: Physics.RaycastAll on ShopBody
+- `UpgradeUI`: DisplayName, tier, Cost: -$X, Income: $X→$Y/5s
+- `HUDManager`: TopBar left box — Coins, +X/min, Shops, Customers
+  - Income rate: recalculates every 1s from all built shops
 
 ---
 
 ## 📌 Current Step
 
-**→ Step 32: LevelObjectiveManager.cs (Phase 6 start)**
+**→ Step 40: Gem System**
 
-## Phase 6 Plan
+## Phase 7 Remaining
 
-- Step 32: LevelObjectiveManager.cs
-- Step 33: Track shops built, customers served, money earned
-- Step 34: Satisfaction system
-- Step 35: LevelManager.cs + star calc + income multiplier wire
-- Step 36: Mission UI panel
+- Step 40: Gem system
+- Step 41: Mission panel (advanced)
+- Step 42: Level complete panel + Level Map (Current/Next/Upcoming/Coming Soon)
+- Step 43: Cinematic on shop unlock
 
-## Pending (Phase 7)
+## Pending (Phase 7B+)
 
-- Grid placement (tile 5×5)
+- AudioManager, FXManager, FX prefabs
+- SafeAreaHandler, SaveManager, ResetManager
 - Dynamic shop cost: `baseCost * Mathf.Pow(1.5f, shopsBuilt)`
-- Full HUD: coins + per-min rate, level %, gems, shop count, customer count
-- Gem system, 3-tier shop upgrade, mission panel, level complete panel
 
 ---
 
@@ -96,21 +127,13 @@ Accent: #4A90D9 | Gold: #F5A623
 Success: #7ED321 | Dark BG: #1A1A2E
 ```
 
-## 😊 Satisfaction System (Phase 6)
+## ⭐ Upgrade System
 
-```
-Satisfaction = BaseSatisfaction - WaitingPenalty + ShopUpgradeBonus + DecorationBonus
-> 80% → +10% customer arrival rate
-< 30% → customers start leaving
-```
-
-## ⭐ Upgrade System (Phase 7)
-
-| Tier | Capacity    | Income | Speed |
-| ---- | ----------- | ------ | ----- |
-| 1    | 2 customers | $20    | 100%  |
-| 2    | 4 customers | $30    | 110%  |
-| 3    | 6 customers | $45    | 125%  |
+| Tier | Capacity    | Income (base×) | Upgrade Cost |
+| ---- | ----------- | -------------- | ------------ |
+| 1    | 2 customers | $20 (×1.0)     | $0 (base)    |
+| 2    | 4 customers | $30 (×1.5)     | $150         |
+| 3    | 6 customers | $45 (×2.25)    | $300         |
 
 ## 🗺️ Level Structure
 
@@ -145,12 +168,18 @@ vol_bgm, vol_sfx
 | CustomerSpawner.cs       | ✅     |
 | ShopController.cs        | ✅     |
 | ShopData.cs              | ✅     |
+| ShopClickHandler.cs      | ✅     |
 | BuildUI.cs               | ✅     |
+| UpgradeUI.cs             | ✅     |
+| MissionUI.cs             | ✅     |
+| HUDManager.cs            | ✅     |
+| GridManager.cs           | ✅     |
+| LevelObjectiveManager.cs | ✅     |
+| SatisfactionManager.cs   | ✅     |
+| LevelManager.cs          | ✅     |
 | OnboardingManager.cs     | ✅     |
 | LoadingManager.cs        | ✅     |
 | TutorialManager.cs       | ✅     |
-| LevelObjectiveManager.cs | ⬜     |
-| LevelManager.cs          | ⬜     |
 | UIManager.cs             | ⬜     |
 | AudioManager.cs          | ⬜     |
 | FXManager.cs             | ⬜     |
@@ -167,10 +196,10 @@ Assets/_Game/
 │   ├── Core/      GameManager, AudioManager, FXManager, SafeAreaHandler, LoadingManager
 │   ├── Camera/    CameraManager, CameraInputHandler
 │   ├── Character/ CharacterBase, CustomerController, CustomerSpawner
-│   ├── Shop/      ShopController, ShopData
+│   ├── Shop/      ShopController, ShopData, ShopClickHandler, GridManager
 │   ├── Economy/   EconomyManager
-│   ├── Level/     LevelManager, LevelObjectiveManager, TutorialManager
-│   ├── UI/        UIManager, BuildUI, UpgradeUI, OnboardingManager
+│   ├── Level/     LevelManager, LevelObjectiveManager, SatisfactionManager, TutorialManager
+│   ├── UI/        UIManager, BuildUI, UpgradeUI, MissionUI, HUDManager, OnboardingManager
 │   └── Save/      SaveManager
 ├── Prefabs/       Characters/, Shops/GroceryShop, FX/
 ├── Scenes/        LoadingScreen, Onboarding, Levels/Level_01~03
@@ -197,4 +226,9 @@ Staff, Multiple floors, IAP/Ads, Cloud save, Daily rewards, VIP customers, Decor
 - `EnhancedTouchSupport.Enable()` in OnEnable
 - CustomerSpawner Target Shop — event-driven, never Inspector assign
 - `ShopController.Data` property, never `.shopData` direct
-- TMP: Import TMP Essentials on first use
+- Orthographic camera: use Physics.RaycastAll, not OnMouseDown
+- Main Camera needs PhysicsRaycaster for shop click
+- FindFirstObjectByType(FindObjectsInactive.Include) for inactive UI panels
+- Shops spawn in `--- Mall ---` parent via GridManager
+- TMP: Import TMP Essentials on first use; no emoji (LiberationSans SDF limitation)
+- \_shopCounter is static — resets on domain reload only

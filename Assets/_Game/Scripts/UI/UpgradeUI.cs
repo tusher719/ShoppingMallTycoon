@@ -12,6 +12,7 @@ public class UpgradeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI txtShopName;
     [SerializeField] private TextMeshProUGUI txtCurrentTier;
     [SerializeField] private TextMeshProUGUI txtUpgradeCost;
+    [SerializeField] private TextMeshProUGUI txtIncomeInfo;
     [SerializeField] private Button btnUpgrade;
     [SerializeField] private Button btnClose;
 
@@ -51,15 +52,27 @@ public class UpgradeUI : MonoBehaviour
     {
         if (_selectedShop == null) return;
 
-        // DisplayName দিয়ে দেখাও — Shop #1, Shop #2 etc.
         txtShopName.text = _selectedShop.DisplayName;
         txtCurrentTier.text = $"Current: {_selectedShop.GetTierName()}";
+
+        // Current income
+        float currentIncome = _selectedShop.Data.baseIncome
+            * _selectedShop.GetCurrentMultiplier();
 
         if (_selectedShop.CanUpgrade())
         {
             float cost = _selectedShop.GetUpgradeCost();
             bool canAfford = EconomyManager.Instance.CurrentCoins >= cost;
-            txtUpgradeCost.text = $"Upgrade: ${cost}";
+
+            // Next tier income
+            int nextTier = _selectedShop.CurrentTier + 1;
+            float nextMultiplier = _selectedShop.Data.upgradeTiers[nextTier].incomeMultiplier;
+            float nextIncome = _selectedShop.Data.baseIncome * nextMultiplier;
+
+            txtUpgradeCost.text = $"Cost: -${cost}";
+            if (txtIncomeInfo != null)
+                txtIncomeInfo.text = $"Income: ${currentIncome:F0} -> ${nextIncome:F0}/5s";
+
             btnUpgrade.interactable = canAfford;
             SetButtonColor(canAfford
                 ? new Color(0.29f, 0.56f, 0.85f)
@@ -68,6 +81,8 @@ public class UpgradeUI : MonoBehaviour
         else
         {
             txtUpgradeCost.text = "Max Level!";
+            if (txtIncomeInfo != null)
+                txtIncomeInfo.text = $"Income: ${currentIncome:F0}/5s";
             btnUpgrade.interactable = false;
             SetButtonColor(new Color(0.4f, 0.4f, 0.4f));
         }
